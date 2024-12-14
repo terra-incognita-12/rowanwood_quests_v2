@@ -1,0 +1,13 @@
+body {
+    margin: 0;
+    padding: 0;
+    background: url("./assets/background.jpg");
+    backdrop-filter: blur(7px);
+    background-size: cover;
+}
+
+.navbar-button {
+    color: #ffd700 !important;
+    font-weight: bold !important;
+    font-size: 1.3rem !important;
+}
