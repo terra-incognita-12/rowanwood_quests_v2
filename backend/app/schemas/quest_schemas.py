@@ -1,13 +1,12 @@
 from uuid import UUID
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import datetime
 
 class QuestBase(BaseModel):
-    name: str
-    telegram_url: str
-    brief_description: Optional[str] = None
-    full_description: Optional[str] = None
+    name: str = Field(..., max_length=50)
+    telegram_url: str = Field(..., max_length=255)
+    description: Optional[str] = None
     photo: Optional[str] = None
 
 class CreateQuest(QuestBase):
@@ -22,9 +21,9 @@ class ReadQuest(QuestBase):
         from_attributes = True
 
 class UpdateQuest(BaseModel):
-    name: Optional[str] = None
+    name: Optional[str] = Field(None, max_length=50)
     url: Optional[str] = None
-    telegram_url: Optional[str] = None
+    telegram_url: Optional[str] = Field(None, max_length=255)
     brief_description: Optional[str] = None
     full_description: Optional[str] = None
     photo: Optional[str] = None

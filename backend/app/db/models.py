@@ -18,12 +18,12 @@ class Quest(Base):
     # URL that uses telegram bot
     telegram_url = Column(String(255), unique=True, nullable=False)
     # Quest description (ex: The local intelligence office for one of the Human planets has received information about a secret base belonging to a notorious Peleng Lyakusha known as Borzukhan. You need to capture him alive.)
-    brief_description = Column(String(100), nullable=True)
-    full_description = Column(TEXT, nullable=True)
+    description = Column(TEXT, nullable=True)
     # Quest profile photo
     photo = Column(String, nullable=True)
     # is_acitvated - once quest creating/editing is done, editor submitting this to admin before quest is posted
     is_activated = Column(Boolean, default=False, nullable=False)
+    # Timestamps
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
     updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
 
@@ -53,6 +53,7 @@ class QuestLine(Base):
     photo = Column(String, nullable=True)
     # Pointer to the host Quest
     quest_id = Column(UUID(as_uuid=True), ForeignKey("quests.id", ondelete="CASCADE"), nullable=False)
+    # Timestamps
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
     updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
 
