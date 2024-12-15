@@ -11,9 +11,7 @@ const Navbar = () => {
             position="static" 
             sx={{ 
                 flex: 1,
-                backgroundColor: "rgba(0, 0, 0, 0.75)",
-                backdropFilter: "blur(10px)",
-                boxShadow: "0 10px 30px rgba(0, 0, 0, 1)"
+                boxShadow: "10px 10px 10px rgba(0, 0, 0, 1)"
             }}
         >
             <Toolbar>
