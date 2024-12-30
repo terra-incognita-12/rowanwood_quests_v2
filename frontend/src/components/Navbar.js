@@ -1,9 +1,6 @@
 import React from "react";
-import AppBar from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
-import Box from "@mui/material/Box";
+import { AppBar, Toolbar, Button, Box } from "@mui/material";
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
     return (
@@ -16,10 +13,12 @@ const Navbar = () => {
         >
             <Toolbar>
                 <Box sx={{ display: "flex", flexGrow: 1 }}>
-                    <Button color="inherit" sx={{ textTransform: "none" }} className="navbar-button">Home</Button>
+                    <Button component={Link} to="/" color="inherit" sx={{ textTransform: "none" }} className="navbar-button">Home</Button>
                     <Button color="inherit" sx={{ textTransform: "none" }} className="navbar-button">Library</Button>
                     <Button color="inherit" sx={{ textTransform: "none" }} className="navbar-button">About</Button>
+                    <Button color="inherit" sx={{ textTransform: "none" }} className="navbar-button">Contact Us</Button>
                 </Box>
+                <Button component={Link} to="/editor/quests" color="inherit" sx={{ textTransform: "none" }} className="navbar-button">Quests (test)</Button>
                 <Button color="inherit" sx={{ textTransform: "none" }} className="navbar-button">Login</Button>
             </Toolbar>
         </AppBar>

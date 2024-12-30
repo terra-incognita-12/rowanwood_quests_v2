@@ -31,7 +31,7 @@ const Layout = () => {
                 >
                     <Navbar />
                 </Box>
-                <Outlet />
+                <Box sx={{ p: 5 }}><Outlet /></Box>     
             </Container>
         </Box>
     );
