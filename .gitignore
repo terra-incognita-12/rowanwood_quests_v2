@@ -218,3 +218,4 @@ pip-selfcheck.json
 # End of https://www.toptal.com/developers/gitignore/api/python,venv,linux,react
 
 my_notes.txt
+/backend/app/assets

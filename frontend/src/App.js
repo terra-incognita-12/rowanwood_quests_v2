@@ -4,7 +4,7 @@ import { createTheme, ThemeProvider, CssBaseline } from "@mui/material";
 import Layout from "./components/Layout";
 
 import HomePage from "./pages/HomePage";
-import QuestsEditorPage from "./pages/editor/QuestsEditorPage";
+import AllQuestsEditorPage from "./pages/editor/AllQuestsEditorPage";
 import CreateQuestPage from "./pages/editor/CreateQuestPage";
 
 const darkTheme = createTheme({
@@ -27,7 +27,7 @@ const App = () => {
                 <Routes>
                     <Route path="/" element={<Layout />}>
                         <Route index element={<HomePage />} />
-                        <Route path="/editor/quests" element={<QuestsEditorPage />} />
+                        <Route path="/editor/quests" element={<AllQuestsEditorPage />} />
                         <Route path="/editor/quests/new" element={<CreateQuestPage />} />
                     </Route>
                 </Routes>

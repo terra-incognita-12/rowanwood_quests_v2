@@ -1,9 +1,33 @@
 import apiClient from "./axios";
 
-export const createQuests = async (questData) => {
-    const response = await apiClient.post("/quests", questData);
-    return response.data;
-}
+// export const createQuest = async (formData, ifHasImage) => {
+//     try {
+//         const headers = ifHasImage
+//             ? { "Content-Type": "multipart/form-data" }
+//             : undefined;
+        
+//         const response = await apiClient.post("/quests", formData, { headers });
+//         return response.data;
+//     } catch (error) {
+//         throw error;
+//     }
+// };
+export const createQuest = async (formData) => {
+    formData.forEach((value, key) => {
+        console.log(`key ${key} - value ${value}`);
+    });
+    
+    try {
+        const response = await apiClient.post("/quests", formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
 
 export const getQuests = async () => {
     const response = await apiClient.get("/quests/");

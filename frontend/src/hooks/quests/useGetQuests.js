@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { getQuests } from "../api/questsApi";
+import { getQuests } from "../../api/questsApi";
 
-const useQuests = () => {
+const useGetQuests = () => {
     const [quests, setQuests] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -12,7 +12,7 @@ const useQuests = () => {
                 const data = await getQuests();
                 setQuests(data);
             } catch (err) {
-                setError("Failed to load quests.");
+                setError(err.message || "Something went wrong!");
             } finally {
                 setLoading(false);
             }
@@ -24,4 +24,4 @@ const useQuests = () => {
     return { quests, loading, error };
 };
 
-export default useQuests;
+export default useGetQuests;

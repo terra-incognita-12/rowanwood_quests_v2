@@ -1,11 +1,15 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from sqlalchemy.orm import Session
 from typing import List
-from uuid import UUID
+from uuid import UUID, uuid4
+from pathlib import Path
 
 from app.db.database import get_db
 from app.db.models import Quest
 from app.schemas import quest_schemas as schema
+
+UPLOAD_DIR = Path("app/assets")
+UPLOAD_DIR.mkdir(exist_ok=True)
 
 router = APIRouter()
 
@@ -17,12 +21,31 @@ def get_quest_by_telegram_url(db: Session, telegram_url: str):
 
 # CREATE
 
+# No schema since the request is multipart/form-data
 @router.post("/", status_code=201)
-def create_quest(payload: schema.CreateQuest, db: Session = Depends(get_db)): 
-    if get_quest_by_telegram_url(db, payload.telegram_url):
+async def create_quest(
+    name: str = Form(...),
+    telegram_url: str = Form(...),
+    description: str = Form(...),
+    photo: UploadFile = File(None),  # photo is optional
+    db: Session = Depends(get_db),
+):
+    if get_quest_by_telegram_url(db, telegram_url):
         raise HTTPException(status_code=409, detail="Quest with this telegram url already exists")
 
-    new_quest = Quest(name=payload.name.capitalize(), **payload.model_dump(exclude={"name"}))
+    photo_path = None
+    if photo:
+        photo_path = UPLOAD_DIR / f"{uuid4()}-{photo.filename}"
+        with open(photo_path, "wb") as f:
+            f.write(await photo.read())
+
+    new_quest = Quest(
+        name=name.capitalize(),
+        telegram_url=telegram_url,
+        description=description,
+        photo=str(photo_path) if photo_path else None,
+    )
+
     db.add(new_quest)
     db.commit()
     db.refresh(new_quest)

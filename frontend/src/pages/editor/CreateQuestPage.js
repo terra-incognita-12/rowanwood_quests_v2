@@ -1,8 +1,10 @@
 import { React, useState } from "react";
-import { Box, Typography, Button, TextField, Stack, IconButton, Grid2 } from "@mui/material";
+import { Box, Typography, Button, TextField, Stack, IconButton, Grid2, Alert } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CloseIcon from "@mui/icons-material/Close";
 import { Link } from "react-router-dom";
+// import useCreateQuest from "../../hooks/quests/useCreateQuest";
+import { createQuest } from "../../api/questsApi";
 
 const URL_REGEX = /^[a-z][a-zA-Z0-9-_]{3,255}$/
 const PHOTO_REGEX = /\.(jpg|jpeg)$/
@@ -11,6 +13,9 @@ const PHOTO_REGEX = /\.(jpg|jpeg)$/
 Editor section, create new quest
 */
 const CreateQuestPage = () => {
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+
     const [formData, setFormData] = useState({
         name: "",
         telegram_url: "",
@@ -18,38 +23,47 @@ const CreateQuestPage = () => {
         photo: null,
     });
 
-    const [errors, setErrors] = useState({
+    const [formErrors, setFormErrors] = useState({
         name: "",
         telegram_url: "",
         description: "",
         photo: "",
     });
 
+    // State to check if photo uploaded and valid to show current loaded photo before submit
     const [isPhotoUploaded, setIsPhotoUploaded] = useState(false);
 
+    const validateField = (name, value) => {
+        switch (name) {
+            case "name":
+                if (!value) return "Quest Name is Required.";
+                if (value.length > 50) return "Max 50 character allowed.";
+                if (value.length < 3) return "Min 3 character allowed.";
+                break;
+            case "telegram_url":
+                if (!value) return "Telegram URL is Required.";
+                if (value.length > 255) return "Max 255 character allowed.";
+                if (!URL_REGEX.test(value)) return "Only latin letters, underscores, min 3 character, max 255 character.";
+                break;
+            case "description":
+                if (!value) return "Description is Required.";
+                break;
+            case "photo":
+                if(value && !value.name.match(PHOTO_REGEX)) return "Only .jpeg or .jpg files are allowed.";
+                if(value && value.size > 2097152) return "Value size is too big.";
+                break;
+            default:
+                return null;
+        }
+        return null;
+    };
+
+    // inputs
     const handleChange = (e) => {
         const { name, value } = e.target;
 
-        // name is more than 50 symbols
-        if (name === "name" && value.length > 50) {
-            setErrors((prev) => ({
-                ...prev,
-                name: "Max 50 character allowed.",
-            }));
-        // name is less than 3 symbols
-        } else if (name === "name" && value.length < 3) {
-            setErrors((prev) => ({
-                ...prev,
-                name: "Min 3 character allowed.",
-            }));
-        } else if (name === "telegram_url" && !URL_REGEX.test(value)) {
-            setErrors((prev) => ({
-                ...prev,
-                telegram_url: "Only latin letters, underscores, min 3 character, max 255 character"
-            }));
-        } else {
-            setErrors((prev) => ({ ...prev, [name]: "" }));
-        }
+        const error = validateField(name, value);
+        setFormErrors((prev) => ({ ...prev, [name]: error }));
 
         setFormData((prev) => ({
             ...prev,
@@ -57,19 +71,18 @@ const CreateQuestPage = () => {
         }));
     };
 
+    // handleChange for photo
     const handlePhotoUpload = (e) => {
         const file = e.target.files[0];
-        if (file && !file.name.match(PHOTO_REGEX)) {
-            setErrors((prev) => ({ ...prev, photo: "Only .jpeg or .jpg files are allowed." }));
-        } else if (file && file.size > 2097152) {
-            setErrors((prev) => ({ ...prev, photo: "Photo size is too big"}));
-        } else {
-            setErrors((prev) => ({ ...prev, photo: "" }));
+        const error = validateField("photo", file);
+        setFormErrors((prev) => ({ ...prev, photo: error }));
+        if (!error) {
             setFormData((prev) => ({ ...prev, photo: file }));
             setIsPhotoUploaded(true);
-        }
+        }   
     };
 
+    // Clean photo 
     const handleCleanPhoto = (e) => {
         e.target.value = "";
     };
@@ -82,9 +95,55 @@ const CreateQuestPage = () => {
         setIsPhotoUploaded(false);
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log(formData);
+        
+        // Validate before submit
+        const newErrors = {};
+        Object.keys(formData).forEach((field) => {
+            const error = validateField(field, formData[field]);
+            if (error) newErrors[field] = error;
+        });
+        if (Object.keys(newErrors).length > 0) {
+            setFormErrors(newErrors);
+            return;
+        }
+
+        const formDataToSend = new FormData();
+        Object.entries(formData).forEach(([key, value]) => {
+            if (value) formDataToSend.append(key, value);
+        });
+
+        // // Check if 
+        // const ifHasImage = formData.photo instanceof File;
+        // console.log(ifHasImage);
+
+        try {
+            setLoading(true);
+            setError(null);
+            // const response = await createQuest(formDataToSend, ifHasImage);
+            const response = await createQuest(formDataToSend);
+            return response;
+        } catch (err) {
+            if (err.response?.data?.detail) {
+                const errorDetail = Array.isArray(err.response.data.detail)
+                    ? err.response.data.detail.map((e) => e.msg).join(", ")
+                    : err.response.data.detail
+                setError(errorDetail || "Something went wrong!");
+            } else {
+                setError("Failed to connect to the server, please try again.");
+            }
+        } finally {
+            setLoading(false);
+        }
+
+        // try {
+        //     const response = await submitQuest(formDataToSend);
+        //     console.log(response);
+        //     alert("Quest created successfully!");
+        // } catch (err) {
+        //     alert("Failed to create quest");
+        // }
     };
 
     return (
@@ -94,14 +153,15 @@ const CreateQuestPage = () => {
                 <Typography variant="h3">New Quest</Typography>
             </Box>
             <Box component="form" onSubmit={handleSubmit} sx={{ mt: 5, display: "flex", flexDirection: "column", gap: 2 }}>
+                {error && <Alert severity="error">{error}</Alert>}
+                
                 <TextField
                     label="Quest Name"
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    error={!!errors.name}
-                    helperText={errors.name || ""}
-                    // inputProps={{ maxLength: 50 }}
+                    error={!!formErrors.name}
+                    helperText={formErrors.name || ""}
                     fullWidth
                     required
                 />
@@ -110,8 +170,8 @@ const CreateQuestPage = () => {
                     name="telegram_url"
                     value={formData.telegram_url}
                     onChange={handleChange}
-                    error={!!errors.telegram_url}
-                    helperText={errors.telegram_url || ""}
+                    error={!!formErrors.telegram_url}
+                    helperText={formErrors.telegram_url || ""}
                     fullWidth
                     required
                 />
@@ -120,6 +180,8 @@ const CreateQuestPage = () => {
                     name="description"
                     value={formData.description}
                     onChange={handleChange}
+                    error={!!formErrors.description}
+                    helperText={formErrors.description || ""}
                     multiline
                     rows={4}
                     fullWidth
@@ -149,12 +211,13 @@ const CreateQuestPage = () => {
                         </Grid2>
                     )}
                 </Grid2>
-                {errors.photo && <Box sx={{ color: "red"}}>{errors.photo}</Box>}
+                {formErrors.photo && <Box sx={{ color: "red"}}>{formErrors.photo}</Box>}
                 <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
                     <Button type="submit" variant="contained" color="inherit" sx={{ textTransform: "none", width: "100%" }}>
                         <Typography variant="h5">Submit</Typography>
                     </Button>
                 </Box>
+                {loading && <p>Submitting...</p>}
             </Box>
         </Box>
     );

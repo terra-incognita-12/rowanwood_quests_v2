@@ -1,13 +1,30 @@
-import React from "react";
+import { React, useState, useEffect } from "react";
 import { Box, Typography, Button, List, ListItem, ListItemText } from "@mui/material";
 import { Link } from "react-router-dom";
-import useQuests from "../../hooks/useQuests";
+import { getQuests } from "../../api/questsApi";
 
 /* 
 Editor section, page with all quests
 */
-const QuestsEditorPage = () => {
-    const { quests, loading, error } = useQuests();
+const AllQuestsEditorPage = () => {
+    const [quests, setQuests] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const loadQuests = async () => {
+            try {
+                const data = await getQuests();
+                setQuests(data);
+            } catch (err) {
+                setError(err.message || "Something went wrong!");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadQuests();
+    }, []);
 
     if (loading) return <p>Loading quests...</p>;
     if (error) return <p>{error}</p>;
@@ -37,4 +54,4 @@ const QuestsEditorPage = () => {
     );
 };
 
-export default QuestsEditorPage;
+export default AllQuestsEditorPage;
