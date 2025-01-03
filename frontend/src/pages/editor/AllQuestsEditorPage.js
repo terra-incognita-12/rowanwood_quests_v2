@@ -38,7 +38,7 @@ const AllQuestsEditorPage = () => {
             <Box sx={{ mt: 5 }}>
                 <List>
                     {quests.map((quest, index) => (
-                        <ListItem key={index} component={Link} to="/">
+                        <ListItem key={index} component={Link} to={`/editor/quest/${quest.id}`}>
                             <ListItemText 
                                 primary={
                                     <Typography variant="h6">

@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     db_pass: str = config("DB_PASS")
     db_host: str = config("DB_HOST")
     db_port: str = config("DB_PORT")
+    quest_uploads: str = config("QUEST_UPLOADS")
 
     class Config:
         env_file = ".env"

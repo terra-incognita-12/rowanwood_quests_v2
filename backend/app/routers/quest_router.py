@@ -7,9 +7,9 @@ from pathlib import Path
 from app.db.database import get_db
 from app.db.models import Quest
 from app.schemas import quest_schemas as schema
+from app.core.config import settings
 
-UPLOAD_DIR = Path("app/assets")
-UPLOAD_DIR.mkdir(exist_ok=True)
+UPLOAD_DIR = Path(settings.quest_uploads)
 
 router = APIRouter()
 
@@ -33,17 +33,19 @@ async def create_quest(
     if get_quest_by_telegram_url(db, telegram_url):
         raise HTTPException(status_code=409, detail="Quest with this telegram url already exists")
 
-    photo_path = None
+    photo_url = None
     if photo:
-        photo_path = UPLOAD_DIR / f"{uuid4()}-{photo.filename}"
+        file_name = f"{uuid4()}-{photo.filename}"
+        photo_path = UPLOAD_DIR / file_name
         with open(photo_path, "wb") as f:
             f.write(await photo.read())
+        photo_url = f"/quest_uploads/{file_name}"
 
     new_quest = Quest(
         name=name.capitalize(),
         telegram_url=telegram_url,
         description=description,
-        photo=str(photo_path) if photo_path else None,
+        photo=photo_url,
     )
 
     db.add(new_quest)
