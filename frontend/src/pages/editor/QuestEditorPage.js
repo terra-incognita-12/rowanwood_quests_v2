@@ -1,9 +1,9 @@
-import { React, useState } from "react";
+import { React, useState, useEffect } from "react";
 import { Box, Typography, Button, TextField, Stack, IconButton, Grid2, Alert } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CloseIcon from "@mui/icons-material/Close";
-import { Link } from "react-router-dom";
-import { createQuest } from "../../api/questsApi";
+import { Link, useParams } from "react-router-dom";
+import { getQuest } from "../../api/questsApi";
 
 const URL_REGEX = /^[a-z][a-zA-Z0-9-_]{3,255}$/
 const PHOTO_REGEX = /\.(jpg|jpeg)$/
@@ -11,9 +11,19 @@ const PHOTO_REGEX = /\.(jpg|jpeg)$/
 /* 
 Editor section, create new quest
 */
-const CreateQuestPage = () => {
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+const QuestEditorPage = () => {
+    const { id } = useParams();
+    
+    // Loading and Error while pulling quest from the DB
+    const [loadingGetQuest, setLoadingGetQuest] = useState(true);
+    const [errorGetQuest, setErrorGetQuest] = useState(null);
+
+    // Loading and Error while submitting changes to the quest
+    const [loadingUpdateQuest, setLoadingUpdateQuest] = useState(false);
+    const [errorUpdateQuest, setErrorUpdateQuest] = useState(null);
+    
+    // Quest pulled from DB
+    const [quest, setQuest] = useState();
 
     const [formData, setFormData] = useState({
         name: "",
@@ -31,6 +41,31 @@ const CreateQuestPage = () => {
 
     // State to check if photo uploaded and valid to show current loaded photo before submit
     const [isPhotoUploaded, setIsPhotoUploaded] = useState(false);
+
+    const backendUrl = process.env.REACT_APP_BACKEND_URL;
+
+    // Pulling quest from the DB
+    useEffect(() => {
+        const loadQuest = async () => {
+            try {
+                const data = await getQuest(id);
+                setQuest(data);
+
+                setFormData({
+                    name: data.name || "",
+                    telegram_url: data.telegram_url || "",
+                    description: data.description || "",
+                    photo: null,
+                });
+            } catch (err) {
+                setErrorGetQuest(err.message || "Something went wrong!");
+            } finally {
+                setLoadingGetQuest(false);
+            }
+        };
+
+        loadQuest();
+    }, [id]);
 
     const validateField = (name, value) => {
         switch (name) {
@@ -96,50 +131,29 @@ const CreateQuestPage = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
-        // Validate before submit
-        const newErrors = {};
-        Object.keys(formData).forEach((field) => {
-            const error = validateField(field, formData[field]);
-            if (error) newErrors[field] = error;
-        });
-        if (Object.keys(newErrors).length > 0) {
-            setFormErrors(newErrors);
-            return;
-        }
-
-        const formDataToSend = new FormData();
-        Object.entries(formData).forEach(([key, value]) => {
-            if (value) formDataToSend.append(key, value);
-        });
-
-        try {
-            setLoading(true);
-            setError(null);
-            const response = await createQuest(formDataToSend);
-            return response;
-        } catch (err) {
-            if (err.response?.data?.detail) {
-                const errorDetail = Array.isArray(err.response.data.detail)
-                    ? err.response.data.detail.map((e) => e.msg).join(", ")
-                    : err.response.data.detail
-                setError(errorDetail || "Something went wrong!");
-            } else {
-                setError("Failed to connect to the server, please try again.");
-            }
-        } finally {
-            setLoading(false);
-        }
     };
+
+    if (loadingGetQuest) return <p>Loading quest...</p>;
+    if (errorGetQuest) return <p>{errorGetQuest}</p>;
 
     return (
         <Box>
             <Box sx={{ display: "flex" }}>
                 <Button component={Link} to="/editor/quests" color="inherit" sx={{ textTransform: "none" }} variant="text"><ArrowBackIcon /></Button>
-                <Typography variant="h3">New Quest</Typography>
+                <Typography variant="h3">{ quest?.name }</Typography>
+            </Box>
+            <Box sx={{ textAlign: "center", mb: 5, mt: 5 }}>
+                <img
+                    src={quest?.photo
+                            ? `${backendUrl}${quest?.photo}`
+                            : "https://via.placeholder.com/800x800"
+                    }
+                    alt="Quest"
+                    style={{ width: "800px", height: "800px", objectFit: "cover", borderRadius: "25px" }}
+                />
             </Box>
             <Box component="form" onSubmit={handleSubmit} sx={{ mt: 5, display: "flex", flexDirection: "column", gap: 2 }}>
-                {error && <Alert severity="error">{error}</Alert>}
+                {errorUpdateQuest && <Alert severity="error">{errorUpdateQuest}</Alert>}
                 
                 <TextField
                     label="Quest Name"
@@ -169,7 +183,7 @@ const CreateQuestPage = () => {
                     error={!!formErrors.description}
                     helperText={formErrors.description || ""}
                     multiline
-                    rows={4}
+                    rows={20}
                     fullWidth
                     required
                 />
@@ -203,10 +217,10 @@ const CreateQuestPage = () => {
                         <Typography variant="h5">Submit</Typography>
                     </Button>
                 </Box>
-                {loading && <p>Submitting...</p>}
+                {loadingUpdateQuest && <p>Submitting...</p>}
             </Box>
         </Box>
     );
 };
 
-export default CreateQuestPage;
+export default QuestEditorPage;
