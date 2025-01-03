@@ -138,18 +138,37 @@ const QuestEditorPage = () => {
 
     return (
         <Box>
-            <Box sx={{ display: "flex" }}>
-                <Button component={Link} to="/editor/quests" color="inherit" sx={{ textTransform: "none" }} variant="text"><ArrowBackIcon /></Button>
-                <Typography variant="h3">{ quest?.name }</Typography>
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 5 }}>
+                <Box sx={{ display: "flex" }}>
+                    <Button 
+                        component={Link} 
+                        to="/editor/quests" 
+                        color="inherit"  
+                        variant="text"
+                        sx={{ textTransform: "none" }}
+                    >
+                        <ArrowBackIcon />
+                    </Button>
+                    <Typography variant="h3" sx={{ display: {xs: "none", sm: "block"} }}>Edit Quest</Typography>
+                </Box>
+                <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 2 }}>
+                    <Button color="inherit" variant="contained" sx={{ textTransform: "none" }}>Edit Lines</Button>
+                    <Button color="error" variant="contained" sx={{ textTransform: "none" }}>Delete Quest</Button>
+                </Box>
             </Box>
-            <Box sx={{ textAlign: "center", mb: 5, mt: 5 }}>
+            <Box sx={{ textAlign: "center", width: "100%", maxWidth: "800px", margin: "0 auto" }}>
                 <img
                     src={quest?.photo
                             ? `${backendUrl}${quest?.photo}`
                             : "https://via.placeholder.com/800x800"
                     }
                     alt="Quest"
-                    style={{ width: "800px", height: "800px", objectFit: "cover", borderRadius: "25px" }}
+                    style={{ 
+                        width: "100%",
+                        height: "auto", 
+                        objectFit: "cover", 
+                        borderRadius: "25px" 
+                    }}
                 />
             </Box>
             <Box component="form" onSubmit={handleSubmit} sx={{ mt: 5, display: "flex", flexDirection: "column", gap: 2 }}>
@@ -183,13 +202,18 @@ const QuestEditorPage = () => {
                     error={!!formErrors.description}
                     helperText={formErrors.description || ""}
                     multiline
-                    rows={20}
+                    rows={10}
                     fullWidth
                     required
                 />
                 <Grid2 spacing={2} container>
                     <Grid2 xs={12} md={6}>
-                        <Button variant="contained" component="label" color="inherit" sx={{ textTransform: "none" }}>
+                        <Button 
+                            variant="contained" 
+                            component="label" 
+                            color="inherit" 
+                            sx={{ textTransform: "none" }}
+                        >
                             Upload Photo
                             <input
                                 type="file"
@@ -213,7 +237,12 @@ const QuestEditorPage = () => {
                 </Grid2>
                 {formErrors.photo && <Box sx={{ color: "red"}}>{formErrors.photo}</Box>}
                 <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-                    <Button type="submit" variant="contained" color="inherit" sx={{ textTransform: "none", width: "100%" }}>
+                    <Button 
+                        type="submit" 
+                        variant="contained" 
+                        color="inherit" 
+                        sx={{ textTransform: "none", width: "100%" }}
+                    >
                         <Typography variant="h5">Submit</Typography>
                     </Button>
                 </Box>
