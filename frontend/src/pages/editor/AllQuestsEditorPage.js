@@ -31,9 +31,17 @@ const AllQuestsEditorPage = () => {
 
     return (
         <Box>
-            <Box display="flex" justifyContent="space-between">
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <Typography variant="h3">Quests</Typography>
-                <Button component={Link} to="/editor/quests/new" color="inherit" sx={{ textTransform: "none" }} variant="contained">New Quest</Button>
+                <Button 
+                    component={Link} 
+                    to="/editor/quests/new"
+                    color="inherit" 
+                    variant="contained"
+                    sx={{ textTransform: "none" }} 
+                >
+                    New Quest
+                </Button>
             </Box>
             <Box sx={{ mt: 5 }}>
                 <List>

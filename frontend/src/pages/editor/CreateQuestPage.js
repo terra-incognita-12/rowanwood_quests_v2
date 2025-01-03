@@ -134,8 +134,16 @@ const CreateQuestPage = () => {
 
     return (
         <Box>
-            <Box sx={{ display: "flex" }}>
-                <Button component={Link} to="/editor/quests" color="inherit" sx={{ textTransform: "none" }} variant="text"><ArrowBackIcon /></Button>
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Button 
+                    component={Link} 
+                    to="/editor/quests" 
+                    color="inherit" 
+                    variant="text"
+                    sx={{ textTransform: "none" }}
+                >
+                    <ArrowBackIcon />
+                </Button>
                 <Typography variant="h3">New Quest</Typography>
             </Box>
             <Box component="form" onSubmit={handleSubmit} sx={{ mt: 5, display: "flex", flexDirection: "column", gap: 2 }}>
@@ -175,7 +183,12 @@ const CreateQuestPage = () => {
                 />
                 <Grid2 spacing={2} container>
                     <Grid2 xs={12} md={6}>
-                        <Button variant="contained" component="label" color="inherit" sx={{ textTransform: "none" }}>
+                        <Button 
+                            variant="contained" 
+                            component="label" 
+                            color="inherit" 
+                            sx={{ textTransform: "none" }}
+                        >
                             Upload Photo
                             <input
                                 type="file"
@@ -199,7 +212,12 @@ const CreateQuestPage = () => {
                 </Grid2>
                 {formErrors.photo && <Box sx={{ color: "red"}}>{formErrors.photo}</Box>}
                 <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-                    <Button type="submit" variant="contained" color="inherit" sx={{ textTransform: "none", width: "100%" }}>
+                    <Button 
+                        type="submit" 
+                        variant="contained" 
+                        color="inherit" 
+                        sx={{ textTransform: "none", width: "100%" }}
+                    >
                         <Typography variant="h5">Submit</Typography>
                     </Button>
                 </Box>
