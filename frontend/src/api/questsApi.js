@@ -23,9 +23,17 @@ export const getQuest = async (id) => {
     return response.data;
 };
 
-export const updateQuest = async (id) => {
-    const response = await apiClient.patch(`/quests/${id}`);
-    return response.data;
+export const updateQuest = async (formData, id) => {    
+    try {
+        const response = await apiClient.patch(`/quests/${id}`, formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
 };
 
 export const deleteQuest = async (id) => {

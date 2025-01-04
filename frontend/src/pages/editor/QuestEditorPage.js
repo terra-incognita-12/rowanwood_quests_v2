@@ -3,7 +3,8 @@ import { Box, Typography, Button, TextField, Stack, IconButton, Grid2, Alert } f
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CloseIcon from "@mui/icons-material/Close";
 import { Link, useParams } from "react-router-dom";
-import { getQuest } from "../../api/questsApi";
+import { getQuest, updateQuest, deleteQuest } from "../../api/questsApi";
+import { redirectTo } from "../../utils/navigations";
 
 const URL_REGEX = /^[a-z][a-zA-Z0-9-_]{3,255}$/
 const PHOTO_REGEX = /\.(jpg|jpeg)$/
@@ -24,6 +25,14 @@ const QuestEditorPage = () => {
     
     // Quest pulled from DB
     const [quest, setQuest] = useState();
+
+    // Original values before change. Photo should be null, because it will be only triggered on change to not null
+    const [initialFormData, setInitialFormData] = useState({
+        name: "",
+        telegram_url: "",
+        description: "",
+        photo: null,
+    });
 
     const [formData, setFormData] = useState({
         name: "",
@@ -50,7 +59,12 @@ const QuestEditorPage = () => {
             try {
                 const data = await getQuest(id);
                 setQuest(data);
-
+                setInitialFormData({
+                    name: data.name || "",
+                    telegram_url: data.telegram_url || "",
+                    description: data.description || "",
+                    photo: null,
+                });
                 setFormData({
                     name: data.name || "",
                     telegram_url: data.telegram_url || "",
@@ -131,6 +145,77 @@ const QuestEditorPage = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // If no changes done, don't submit 
+        if (JSON.stringify(formData) === JSON.stringify(initialFormData)) {
+            alert("No changes detected.");
+            return;
+        }
+
+        // Validate before submit
+        const newErrors = {};
+        Object.keys(formData).forEach((field) => {
+            const error = validateField(field, formData[field]);
+            if (error) newErrors[field] = error;
+        });
+        if (Object.keys(newErrors).length > 0) {
+            setFormErrors(newErrors);
+            return;
+        }
+
+        const formDataToSend = new FormData();
+        Object.keys(formData).forEach((key) => {
+            if (formData[key] !== initialFormData[key]) {
+                // Append the photo file
+                if (key === "photo" && formData[key] instanceof File) {
+                    formDataToSend.append(key, formData[key]);
+                // Append other fields
+                } else if (formData[key] !== null && formData[key] !== undefined) {
+                    formDataToSend.append(key, formData[key]);
+                }
+            }
+        });
+
+        try {
+            setLoadingUpdateQuest(true);
+            setErrorUpdateQuest(null);
+            const response = await updateQuest(formDataToSend, id);
+            redirectTo("/editor/quests");
+        } catch (err) {
+            if (err.response?.data?.detail) {
+                const errorDetail = Array.isArray(err.response.data.detail)
+                    ? err.response.data.detail.map((e) => e.msg).join(", ")
+                    : err.response.data.detail
+                setErrorUpdateQuest(errorDetail || "Something went wrong!");
+            } else { 
+                setErrorUpdateQuest("Failed to connect to the server, please try again.");
+            }
+        } finally {
+            setLoadingUpdateQuest(false);
+        }
+    };
+
+    const handleDeletePhoto = async () => {
+
+    };
+
+    const handleDeleteQuest = async () => {
+        if (!window.confirm("Are you sure you want to delete this quest?")) return;
+        if (!window.confirm("Just double check, whole quest with the lines will be deleted...ARE YOU SURE??")) return;
+        
+        try {
+            const response = await deleteQuest(id);
+            redirectTo("/editor/quests");
+        } catch (err) {
+            if (err.response?.data?.detail) {
+                const errorDetail = Array.isArray(err.response.data.detail)
+                    ? err.response.data.detail.map((e) => e.msg).join(", ")
+                    : err.response.data.detail
+                setErrorUpdateQuest(errorDetail || "Something went wrong!");
+            } else { 
+                setErrorUpdateQuest("Failed to connect to the server, please try again.");
+            }
+        }
     };
 
     if (loadingGetQuest) return <p>Loading quest...</p>;
@@ -153,7 +238,14 @@ const QuestEditorPage = () => {
                 </Box>
                 <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 2 }}>
                     <Button color="inherit" variant="contained" sx={{ textTransform: "none" }}>Edit Lines</Button>
-                    <Button color="error" variant="contained" sx={{ textTransform: "none" }}>Delete Quest</Button>
+                    <Button 
+                        color="error" 
+                        variant="contained"
+                        onClick={handleDeleteQuest}
+                        sx={{ textTransform: "none" }}
+                    >
+                        Delete Quest
+                    </Button>
                 </Box>
             </Box>
             <Box sx={{ textAlign: "center", width: "100%", maxWidth: "800px", margin: "0 auto" }}>
@@ -170,6 +262,16 @@ const QuestEditorPage = () => {
                         borderRadius: "25px" 
                     }}
                 />
+            </Box>
+            <Box sx={{ textAlign: "center", width: "100%", justifyContent: "space-around", mt: 3}}>
+                <Button 
+                    color="error" 
+                    variant="contained"
+                    onClick={handleDeletePhoto}
+                    sx={{ textTransform: "none", width: "50%" }}
+                >
+                    Delete Image
+                </Button>
             </Box>
             <Box component="form" onSubmit={handleSubmit} sx={{ mt: 5, display: "flex", flexDirection: "column", gap: 2 }}>
                 {errorUpdateQuest && <Alert severity="error">{errorUpdateQuest}</Alert>}

@@ -4,6 +4,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CloseIcon from "@mui/icons-material/Close";
 import { Link } from "react-router-dom";
 import { createQuest } from "../../api/questsApi";
+import { redirectTo } from "../../utils/navigations";
 
 const URL_REGEX = /^[a-z][a-zA-Z0-9-_]{3,255}$/
 const PHOTO_REGEX = /\.(jpg|jpeg)$/
@@ -117,7 +118,7 @@ const CreateQuestPage = () => {
             setLoading(true);
             setError(null);
             const response = await createQuest(formDataToSend);
-            return response;
+            redirectTo("/editor/quests");
         } catch (err) {
             if (err.response?.data?.detail) {
                 const errorDetail = Array.isArray(err.response.data.detail)
