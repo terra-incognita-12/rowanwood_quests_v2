@@ -17,9 +17,8 @@ class ReadQuest(QuestBase):
     class Config:
         from_attributes = True
 
-class UpdateQuest(BaseModel):
-    name: Optional[str] = Field(None, max_length=50)
-    url: Optional[str] = None
-    telegram_url: Optional[str] = Field(None, max_length=255)
-    description: Optional[str] = None
-    photo: Optional[bytes] = None
+# class UpdateQuest(BaseModel):
+#     name: Optional[str] = Field(None, max_length=50)
+#     telegram_url: Optional[str] = Field(None, max_length=255)
+#     description: Optional[str] = None
+#     photo: Optional[bytes] = None

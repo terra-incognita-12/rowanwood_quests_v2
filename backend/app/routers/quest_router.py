@@ -42,7 +42,7 @@ async def create_quest(
         photo_url = f"/quest_uploads/{file_name}"
 
     new_quest = Quest(
-        name=name.capitalize(),
+        name=name,
         telegram_url=telegram_url,
         description=description,
         photo=photo_url,
@@ -71,16 +71,47 @@ def read_quest(quest_id: UUID, db: Session = Depends(get_db)):
 # UPDATE
 
 @router.patch("/{quest_id}", status_code=200)
-def update_quest(quest_id: UUID, payload: schema.UpdateQuest, db: Session = Depends(get_db)):
+async def update_quest(
+    quest_id: UUID, 
+    name: str = Form(None, max_length=50),
+    telegram_url: str = Form(None, max_length=255),
+    description: str = Form(None),
+    photo: UploadFile = File(None), 
+    db: Session = Depends(get_db)
+):
     quest = get_quest_by_id(db, quest_id)
     if not quest:
         raise HTTPException(status_code=404, detail="Quest doesn't exist")
-    if db.query(Quest).filter(Quest.telegram_url == payload.telegram_url, Quest.id != quest_id).first():
+    if db.query(Quest).filter(Quest.telegram_url == telegram_url, Quest.id != quest_id).first():
         raise HTTPException(status_code=409, detail="Quest with this telegram url already exists")
     
-    updated_data = payload.model_dump(exclude_unset=True)
-    updated_data["name"] = updated_data.get("name", quest.name).capitalize()
-    db.query(Quest).filter(Quest.id == quest_id).update(updated_data, synchronize_session=False)
+    if photo is not None:
+        # Deleting photo
+        if photo.filename == "null":
+            if quest.photo:
+                old_file_path = UPLOAD_DIR / Path(quest.photo).name
+                if old_file_path.exists():
+                    old_file_path.unlink()
+            quest.photo = None
+        # Updating photo
+        else:
+            if quest.photo:
+                old_file_path = UPLOAD_DIR / Path(quest.photo).name
+                if old_file_path.exists():
+                    old_file_path.unlink()
+            file_name = f"{uuid4()}-{photo.filename}"
+            photo_path = UPLOAD_DIR / file_name
+            with open(photo_path, "wb") as f:
+                f.write(await photo.read())
+            quest.photo = f"/quest_uploads/{file_name}"
+
+    if name:
+        quest.name = name
+    if telegram_url:
+        quest.telegram_url = telegram_url
+    if description:
+        quest.description = description
+
     db.commit()
     db.refresh(quest)
 
@@ -94,6 +125,11 @@ def delete_quest(quest_id: UUID, db: Session = Depends(get_db)):
     if not quest:
         raise HTTPException(status_code=404, detail="Quest doesn't exist")
     
+    if quest.photo:
+        file_path = UPLOAD_DIR / Path(quest.photo).name
+        if file_path.exists():
+            file_path.unlink()
+
     db.query(Quest).filter(Quest.id == quest_id).delete(synchronize_session=False)
     db.commit()
 

@@ -1,16 +1,31 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Grid2, Typography, Card, CardActionArea, CardMedia, CardContent } from "@mui/material";
-
-const quests = [
-    { id: 1, name: "Quest 1", image: "https://via.placeholder.com/400" },
-    { id: 2, name: "Quest 2", image: "https://via.placeholder.com/400" },
-    { id: 3, name: "Quest 3", image: "https://via.placeholder.com/400" },
-    { id: 4, name: "Quest 4", image: "https://via.placeholder.com/400" },
-    { id: 5, name: "Quest 5", image: "https://via.placeholder.com/400" },
-    { id: 6, name: "Quest 6", image: "https://via.placeholder.com/400" },
-];
+import { getQuests } from "../api/questsApi";
+import { backendUrl } from "../utils/config";
 
 const HomePage = () => {
+    const [quests, setQuests] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const loadQuests = async () => {
+            try {
+                const data = await getQuests();
+                setQuests(data);
+            } catch (err) {
+                setError(err.message || "Something went wrong!");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadQuests();
+    }, []);
+
+    if (loading) return <p>Loading quests...</p>;
+    if (error) return <p>{error}</p>;
+
     return(
         <Grid2 container spacing={3} justifyContent="center">
             {quests.map((quest) => (
@@ -20,7 +35,10 @@ const HomePage = () => {
                             <CardMedia
                                 component="img"
                                 height="400"
-                                image={quest.image}
+                                image={quest?.photo
+                                    ? `${backendUrl}${quest?.photo}`
+                                    : "https://via.placeholder.com/400x400"
+                                }
                                 alt={quest.name}
                                 sx={{ objectFit: "cover" }}
                             />
