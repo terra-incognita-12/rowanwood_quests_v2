@@ -3,7 +3,7 @@ import { Box, Typography, Button, TextField, Stack, IconButton, Grid2, Alert } f
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CloseIcon from "@mui/icons-material/Close";
 import { Link, useParams } from "react-router-dom";
-import { getQuest, updateQuest, deleteQuest } from "../../api/questsApi";
+import { getQuest, updateQuest, deleteQuest, deleteQuestPhoto } from "../../api/questsApi";
 import { redirectTo } from "../../utils/navigations";
 
 const URL_REGEX = /^[a-z][a-zA-Z0-9-_]{3,255}$/
@@ -152,6 +152,8 @@ const QuestEditorPage = () => {
             return;
         }
 
+        if (!window.confirm("Are you sure you want to commit changes?")) return;
+
         // Validate before submit
         const newErrors = {};
         Object.keys(formData).forEach((field) => {
@@ -180,7 +182,18 @@ const QuestEditorPage = () => {
             setLoadingUpdateQuest(true);
             setErrorUpdateQuest(null);
             const response = await updateQuest(formDataToSend, id);
-            redirectTo("/editor/quests");
+            
+            // Update quest state
+            const updatedQuest = response.data;
+            setQuest(updatedQuest);
+            // Sync initialFormData with updated data
+            setInitialFormData({ 
+                name: updatedQuest.name, 
+                telegram_url: updatedQuest.telegram_url, 
+                description: updatedQuest.description, 
+                photo: updatedQuest.photo 
+            });
+            alert("Changes saved successfully!");
         } catch (err) {
             if (err.response?.data?.detail) {
                 const errorDetail = Array.isArray(err.response.data.detail)
@@ -196,7 +209,28 @@ const QuestEditorPage = () => {
     };
 
     const handleDeletePhoto = async () => {
-
+        if (!window.confirm("Are you sure you want to delete this photo?")) return;
+        
+        try {
+            setLoadingUpdateQuest(true);
+            setErrorUpdateQuest(null);
+            const response = await deleteQuestPhoto(id);
+            setQuest((prev) => ({
+                ...prev,
+                photo: null,
+            }));
+        } catch (err) {
+            if (err.response?.data?.detail) {
+                const errorDetail = Array.isArray(err.response.data.detail)
+                    ? err.response.data.detail.map((e) => e.msg).join(", ")
+                    : err.response.data.detail
+                setErrorUpdateQuest(errorDetail || "Something went wrong!");
+            } else { 
+                setErrorUpdateQuest("Failed to connect to the server, please try again.");
+            }
+        } finally {
+            setLoadingUpdateQuest(false);
+        }
     };
 
     const handleDeleteQuest = async () => {

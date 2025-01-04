@@ -40,3 +40,12 @@ export const deleteQuest = async (id) => {
     const response = await apiClient.delete(`/quests/${id}`);
     return response.data;
 };
+
+export const deleteQuestPhoto = async (id) => {
+    try {
+        const response = await apiClient.delete(`/quests/${id}/photo`);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
