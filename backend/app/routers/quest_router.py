@@ -86,24 +86,15 @@ async def update_quest(
         raise HTTPException(status_code=409, detail="Quest with this telegram url already exists")
     
     if photo is not None:
-        # Deleting photo
-        if photo.filename == "null":
-            if quest.photo:
-                old_file_path = UPLOAD_DIR / Path(quest.photo).name
-                if old_file_path.exists():
-                    old_file_path.unlink()
-            quest.photo = None
-        # Updating photo
-        else:
-            if quest.photo:
-                old_file_path = UPLOAD_DIR / Path(quest.photo).name
-                if old_file_path.exists():
-                    old_file_path.unlink()
-            file_name = f"{uuid4()}-{photo.filename}"
-            photo_path = UPLOAD_DIR / file_name
-            with open(photo_path, "wb") as f:
-                f.write(await photo.read())
-            quest.photo = f"/quest_uploads/{file_name}"
+        if quest.photo:
+            old_file_path = UPLOAD_DIR / Path(quest.photo).name
+            if old_file_path.exists():
+                old_file_path.unlink()
+        file_name = f"{uuid4()}-{photo.filename}"
+        photo_path = UPLOAD_DIR / file_name
+        with open(photo_path, "wb") as f:
+            f.write(await photo.read())
+        quest.photo = f"/quest_uploads/{file_name}"
 
     if name:
         quest.name = name
@@ -134,4 +125,22 @@ def delete_quest(quest_id: UUID, db: Session = Depends(get_db)):
     db.commit()
 
     return {"status": "OK"}
+
+# Delete only photo
+@router.delete("/{quest_id}/photo", status_code=200)
+async def delete_photo(quest_id: UUID, db: Session = Depends(get_db)):
+    quest = get_quest_by_id(db, quest_id)
+    if not quest:
+        raise HTTPException(status_code=404, detail="Quest doesn't exist")
+    
+    if quest.photo:
+        # Remove the photo file
+        old_file_path = UPLOAD_DIR / Path(quest.photo).name
+        if old_file_path.exists():
+            old_file_path.unlink()
+        quest.photo = None
+
+    db.commit()
+    db.refresh(quest)
+    return {"status": "OK", "message": "Photo deleted successfully"}
         
