@@ -4,9 +4,15 @@ import { createTheme, ThemeProvider, CssBaseline } from "@mui/material";
 import Layout from "./components/Layout";
 
 import HomePage from "./pages/HomePage";
+
+// Editor: Quests
 import QuestEditorPage from "./pages/editor/QuestEditorPage";
 import AllQuestsEditorPage from "./pages/editor/AllQuestsEditorPage";
 import CreateQuestPage from "./pages/editor/CreateQuestPage";
+
+// Editor: Quest Lines
+import AllQuestLinesEditorPage from "./pages/editor/AllQuestLinesEditorPage";
+import CreateQuestLinePage from "./pages/editor/CreateQuestLinePage";
 
 const darkTheme = createTheme({
     palette: {
@@ -28,9 +34,13 @@ const App = () => {
                 <Routes>
                     <Route path="/" element={<Layout />}>
                         <Route index element={<HomePage />} />
+                        
                         <Route path="/editor/quest/:id" element={<QuestEditorPage />} />
                         <Route path="/editor/quests" element={<AllQuestsEditorPage />} />
                         <Route path="/editor/quests/new" element={<CreateQuestPage />} />
+                        
+                        <Route path="/editor/quest/:quest_id/quest-lines" element={<AllQuestLinesEditorPage />} />
+                        <Route path="/editor/quest/:quest_id/new-quest-line" element={<CreateQuestLinePage />} />
                     </Route>
                 </Routes>
             </BrowserRouter>

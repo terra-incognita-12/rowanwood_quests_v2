@@ -271,7 +271,15 @@ const QuestEditorPage = () => {
                     <Typography variant="h3" sx={{ display: {xs: "none", sm: "block"} }}>Edit Quest</Typography>
                 </Box>
                 <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 2 }}>
-                    <Button color="inherit" variant="contained" sx={{ textTransform: "none" }}>Edit Lines</Button>
+                    <Button 
+                        component={Link}
+                        to={`/editor/quest/${id}/quest-lines`}
+                        color="inherit" 
+                        variant="contained" 
+                        sx={{ textTransform: "none" }}
+                    >
+                        Edit Lines
+                    </Button>
                     <Button 
                         color="error" 
                         variant="contained"
