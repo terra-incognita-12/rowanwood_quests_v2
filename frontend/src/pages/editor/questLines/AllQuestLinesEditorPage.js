@@ -1,11 +1,11 @@
 import { React, useState, useEffect } from "react";
 import { Box, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
 import { Link, useParams } from "react-router-dom";
-import { getQuestLines } from "../../api/questLinesApi";
+import { getQuestLines } from "../../../api/questLinesApi";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 /* 
-Editor section, page all lines of the specific quest
+Editor section, all lines of the specific quest
 */
 const AllQuestLinesEditorPage = () => {
     const { quest_id } = useParams();

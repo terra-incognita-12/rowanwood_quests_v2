@@ -1,10 +1,10 @@
 import { React, useState, useEffect } from "react";
 import { Box, Typography, Button, List, ListItem, ListItemText } from "@mui/material";
 import { Link } from "react-router-dom";
-import { getQuests } from "../../api/questsApi";
+import { getQuests } from "../../../api/questsApi";
 
 /* 
-Editor section, page with all quests
+Editor section, all quests
 */
 const AllQuestsEditorPage = () => {
     const [quests, setQuests] = useState([]);

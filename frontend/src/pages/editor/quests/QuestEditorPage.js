@@ -3,14 +3,14 @@ import { Box, Typography, Button, TextField, Stack, IconButton, Grid2, Alert } f
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CloseIcon from "@mui/icons-material/Close";
 import { Link, useParams } from "react-router-dom";
-import { getQuest, updateQuest, deleteQuest, deleteQuestPhoto } from "../../api/questsApi";
-import { redirectTo } from "../../utils/navigations";
+import { getQuest, updateQuest, deleteQuest, deleteQuestPhoto } from "../../../api/questsApi";
+import { redirectTo } from "../../../utils/navigations";
 
 const URL_REGEX = /^[a-z][a-zA-Z0-9-_]{3,255}$/
 const PHOTO_REGEX = /\.(jpg|jpeg)$/
 
 /* 
-Editor section, create new quest
+Editor section, edit or delete quest
 */
 const QuestEditorPage = () => {
     const { id } = useParams();

@@ -49,8 +49,6 @@ class QuestLine(Base):
     order_number = Column(Integer, nullable=False)
     # Description of the current quest line for the player
     description = Column(TEXT, nullable=False)
-    # Quest line profile photo
-    photo = Column(String, nullable=True)
     # Pointer to the host Quest
     quest_id = Column(UUID(as_uuid=True), ForeignKey("quests.id", ondelete="CASCADE"), nullable=False)
     # Timestamps

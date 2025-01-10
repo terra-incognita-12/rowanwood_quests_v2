@@ -3,8 +3,8 @@ import { Box, Typography, Button, TextField, Stack, IconButton, Grid2, Alert } f
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CloseIcon from "@mui/icons-material/Close";
 import { Link } from "react-router-dom";
-import { createQuest } from "../../api/questsApi";
-import { redirectTo } from "../../utils/navigations";
+import { createQuest } from "../../../api/questsApi";
+import { redirectTo } from "../../../utils/navigations";
 
 const URL_REGEX = /^[a-z][a-zA-Z0-9-_]{3,255}$/
 const PHOTO_REGEX = /\.(jpg|jpeg)$/

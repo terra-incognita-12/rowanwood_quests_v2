@@ -6,14 +6,14 @@ import Layout from "./components/Layout";
 import HomePage from "./pages/HomePage";
 
 // Editor: Quests
-import QuestEditorPage from "./pages/editor/QuestEditorPage";
-import AllQuestsEditorPage from "./pages/editor/AllQuestsEditorPage";
-import CreateQuestPage from "./pages/editor/CreateQuestPage";
+import QuestEditorPage from "./pages/editor/quests/QuestEditorPage";
+import AllQuestsEditorPage from "./pages/editor/quests/AllQuestsEditorPage";
+import CreateQuestPage from "./pages/editor/quests/CreateQuestPage";
 
 // Editor: Quest Lines
-import QuestLineEditorPage from "./pages/editor/QuestLineEditorPage";
-import AllQuestLinesEditorPage from "./pages/editor/AllQuestLinesEditorPage";
-import CreateQuestLinePage from "./pages/editor/CreateQuestLinePage";
+import QuestLineEditorPage from "./pages/editor/questLines/QuestLineEditorPage";
+import AllQuestLinesEditorPage from "./pages/editor/questLines/AllQuestLinesEditorPage";
+import CreateQuestLinePage from "./pages/editor/questLines/CreateQuestLinePage";
 
 const darkTheme = createTheme({
     palette: {
