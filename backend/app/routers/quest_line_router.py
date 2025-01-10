@@ -29,6 +29,7 @@ def check_order_number_exists(db: Session, quest_id: UUID, order_number: int):
 
 @router.post("/{quest_id}", status_code=201)
 def create_quest_line(quest_id: UUID, payload: lines_schema.CreateQuestLine, db: Session = Depends(get_db)):
+
     # Check if quest exists
     quest = get_quest_by_id(db, quest_id)
     if not quest:
@@ -37,7 +38,22 @@ def create_quest_line(quest_id: UUID, payload: lines_schema.CreateQuestLine, db:
     # Check for duplicate order number
     if check_order_number_exists(db, quest_id, payload.order_number):
         raise HTTPException(status_code=409, detail="Quest Line with this order number already exists")
-    
+
+    # Validate quest_line_options
+    if payload.quest_line_options:
+        validation_errors = []
+        for option in payload.quest_line_options:
+            if not option.description.strip():
+                validation_errors.append(f"Description cannot be empty.")
+            if option.next_quest_line_id:
+                # Check if next_quest_line_id exists in the database
+                if not db.query(QuestLine).filter(QuestLine.id == option.next_quest_line_id).first():
+                    validation_errors.append(
+                        f"Next quest line doesn't exist"
+                    )
+        if validation_errors:
+            raise HTTPException(status_code=422, detail={"errors": validation_errors})
+
     new_quest_line = QuestLine(name=payload.name.capitalize(), quest_id=quest_id, **payload.model_dump(exclude={"name", "quest_line_options"}))
     db.add(new_quest_line)
     db.commit()
@@ -64,7 +80,7 @@ def read_quest_lines(quest_id: UUID, db: Session = Depends(get_db)):
     return quest.quest_lines
 
 # One quest line
-@router.get("/line/{quest_line_id}", response_model=lines_schema.ReadQuestLine)
+@router.get("/{quest_id}/{quest_line_id}", response_model=lines_schema.ReadQuestLine)
 def read_quest_line(quest_line_id: UUID, db: Session = Depends(get_db)):
     quest_line = get_quest_line_by_id(db, quest_line_id)
     if not quest_line:
@@ -91,9 +107,25 @@ def update_quest_line(quest_id: UUID, quest_line_id: UUID, payload: lines_schema
         raise HTTPException(status_code=404, detail="Quest Line doesn't exist")
 
     # Check for duplicate order number
-    if check_order_number_exists(db, quest_id, payload.order_number):
+    check_order_number = check_order_number_exists(db, quest_id, payload.order_number)
+    if (check_order_number and check_order_number.id != quest_line_id):
         raise HTTPException(status_code=409, detail="Quest Line with this order number already exists")
-    
+
+    # Validate quest_line_options
+    if payload.quest_line_options:
+        validation_errors = []
+        for option in payload.quest_line_options:
+            if not option.description.strip():
+                validation_errors.append(f"Description cannot be empty.")
+            if option.next_quest_line_id:
+                # Check if next_quest_line_id exists in the database
+                if not db.query(QuestLine).filter(QuestLine.id == option.next_quest_line_id).first():
+                    validation_errors.append(
+                        f"Next quest line doesn't exist"
+                    )
+        if validation_errors:
+            raise HTTPException(status_code=422, detail={"errors": validation_errors})
+
     updated_data = payload.model_dump(exclude_unset=True, exclude={"quest_line_options"})
     updated_data["name"] = updated_data.get("name", quest_line.name).capitalize()
     db.query(QuestLine).filter(QuestLine.id == quest_line_id).update(updated_data, synchronize_session=False)
@@ -101,16 +133,17 @@ def update_quest_line(quest_id: UUID, quest_line_id: UUID, payload: lines_schema
     db.refresh(quest_line)
 
     # Updating options if they are needs to be updated
-    if payload.quest_line_options:
+    if payload.quest_line_options is not None:
         # Deleting existing options to avoid collisions
         db.query(QuestLineOption).filter(QuestLineOption.current_quest_line_id == quest_line_id).delete()
         db.commit()
 
         # Adding new options
-        for option in payload.quest_line_options:
-            new_option = QuestLineOption(description=option.description, next_quest_line_id=option.next_quest_line_id, current_quest_line_id=quest_line.id)
-            db.add(new_option)
-        db.commit()
+        if (len(payload.quest_line_options) > 0):
+            for option in payload.quest_line_options:
+                new_option = QuestLineOption(description=option.description, next_quest_line_id=option.next_quest_line_id, current_quest_line_id=quest_line.id)
+                db.add(new_option)
+            db.commit()
 
     return {"status": "OK", "data": quest_line}
 

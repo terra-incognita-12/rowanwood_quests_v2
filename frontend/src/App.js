@@ -11,6 +11,7 @@ import AllQuestsEditorPage from "./pages/editor/AllQuestsEditorPage";
 import CreateQuestPage from "./pages/editor/CreateQuestPage";
 
 // Editor: Quest Lines
+import QuestLineEditorPage from "./pages/editor/QuestLineEditorPage";
 import AllQuestLinesEditorPage from "./pages/editor/AllQuestLinesEditorPage";
 import CreateQuestLinePage from "./pages/editor/CreateQuestLinePage";
 
@@ -41,6 +42,7 @@ const App = () => {
                         
                         <Route path="/editor/quest/:quest_id/quest-lines" element={<AllQuestLinesEditorPage />} />
                         <Route path="/editor/quest/:quest_id/new-quest-line" element={<CreateQuestLinePage />} />
+                        <Route path="/editor/quest/:quest_id/quest-lines/:questLine_id" element={<QuestLineEditorPage />} />
                     </Route>
                 </Routes>
             </BrowserRouter>

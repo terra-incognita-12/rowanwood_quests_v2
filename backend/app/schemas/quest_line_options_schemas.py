@@ -4,7 +4,6 @@ from pydantic import BaseModel, Field
 
 class QuestLineOptionBase(BaseModel):
     description: str = Field(..., max_length=255)
-    current_quest_line_id: UUID
     next_quest_line_id: Optional[UUID] = None
 
 class CreateQuestLineOption(QuestLineOptionBase):
@@ -27,5 +26,4 @@ class ReadNestedQuestLineOption(BaseModel):
 
 class UpdateQuestLineOption(BaseModel):
     description: Optional[str] = Field(None, max_length=255)
-    current_quest_line_id: Optional[UUID] = None
     next_quest_line_id: Optional[UUID] = None
