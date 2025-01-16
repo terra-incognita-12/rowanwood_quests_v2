@@ -1,11 +1,32 @@
 from uuid import uuid4
-from sqlalchemy import TIMESTAMP, Column, String, Boolean, TEXT, Integer, ForeignKey, UniqueConstraint
+from sqlalchemy import TIMESTAMP, Column, String, Boolean, TEXT, Integer, ForeignKey, UniqueConstraint, DateTime, Enum
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
+import enum
 
 from app.db.database import Base
 
+'''
+Users - user: no access to admin/editor page; edtior: no access to admin page; admin: full access 
+'''
+class UserRole(enum.Enum):
+    user = "user"
+    editor = "editor"
+    admin = "admin"
+
+class User(Base):
+    __tablename__ = "users";
+
+    id = Column(UUID(as_uuid=True), primary_key=True, nullable=False, default=uuid4)
+    email = Column(String, unique=True, nullable=False)
+    username = Column(String(25), unique=True, nullable=False)
+    password = Column(String, nullable=False)
+    role = Column(Enum(UserRole), nullable=False)
+    is_verified = Column(Boolean, default=False)
+    password_token = Column(String, nullable=True, unique=True)
+    created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
+    
 '''
 Quests are the models that contains main quest entities.
 '''
