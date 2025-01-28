@@ -19,7 +19,7 @@ const Navbar = () => {
                     <Button color="inherit" sx={{ textTransform: "none" }} className="navbar-button">Contact Us</Button>
                 </Box>
                 <Button component={Link} to="/editor/quests" color="inherit" sx={{ textTransform: "none" }} className="navbar-button">Quests (test)</Button>
-                <Button color="inherit" sx={{ textTransform: "none" }} className="navbar-button">Login</Button>
+                <Button component={Link} to="/login" color="inherit" sx={{ textTransform: "none" }} className="navbar-button">Login</Button>
             </Toolbar>
         </AppBar>
     );

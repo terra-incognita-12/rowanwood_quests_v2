@@ -5,6 +5,11 @@ import Layout from "./components/Layout";
 
 import HomePage from "./pages/HomePage";
 
+// Auth
+import RegisterPage from "./pages/auth/RegisterPage";
+import LoginPage from "./pages/auth/LoginPage";
+import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage";
+
 // Editor: Quests
 import QuestEditorPage from "./pages/editor/quests/QuestEditorPage";
 import AllQuestsEditorPage from "./pages/editor/quests/AllQuestsEditorPage";
@@ -36,6 +41,10 @@ const App = () => {
                     <Route path="/" element={<Layout />}>
                         <Route index element={<HomePage />} />
                         
+                        <Route path="/register" element={<RegisterPage />} />
+                        <Route path="/login" element={<LoginPage />} />
+                        <Route path="/forgot_password" element={<ForgotPasswordPage />} />
+
                         <Route path="/editor/quest/:id" element={<QuestEditorPage />} />
                         <Route path="/editor/quests" element={<AllQuestsEditorPage />} />
                         <Route path="/editor/quests/new" element={<CreateQuestPage />} />
