@@ -8,7 +8,6 @@ class Settings(BaseSettings):
     db_pass: str = config("DB_PASS")
     db_host: str = config("DB_HOST")
     db_port: str = config("DB_PORT")
-    quest_uploads: str = config("QUEST_UPLOADS")
     smtp_server: str = config("SMTP_SERVER")
     smtp_port: str = config("SMTP_PORT")
     from_email: str = config("FROM_EMAIL")
@@ -18,6 +17,9 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = config("ACCESS_TOKEN_EXPIRE_MINUTES")
     refresh_token_expire_minutes: int = config("REFRESH_TOKEN_EXPIRE_MINUTES")
 
+    quest_uploads: str = config("QUEST_UPLOADS")
+    library_records_uploads: str = config("LIBRARY_RECORDS_UPLOADS")
+    
     class Config:
         env_file = ".env"
 

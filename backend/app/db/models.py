@@ -103,3 +103,19 @@ class QuestLineOption(Base):
     # Relationships
     current_quest_line = relationship("QuestLine", foreign_keys=[current_quest_line_id], back_populates="quest_line_options")
     next_quest_line = relationship("QuestLine", foreign_keys=[next_quest_line_id])
+
+'''
+Library record about certain location, weapon, character etc
+'''
+class LibraryRecord(Base):
+    __tablename__ = 'library_records'
+
+    id = Column(UUID(as_uuid=True), primary_key=True, nullable=False, default=uuid4)
+    # Record name (ex: "Laser Rifle Numler 2")
+    name = Column(String(50), nullable=False, unique=True)
+    # Record description (ex: "Was created in 2213 by the corp. Numler ...... etc")
+    description = Column(TEXT, nullable=False)
+    photo = Column(String, nullable=True)
+    # Timestamps
+    created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
+    updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())

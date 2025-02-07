@@ -4,20 +4,25 @@ from app.core.security import get_current_user
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from app.routers import quest_router, quest_line_router, user_router
+from app.routers import quest_router, quest_line_router, user_router, library_router
 from app.core.config import settings
 from pathlib import Path
 
-UPLOAD_DIR = Path(settings.quest_uploads)
-UPLOAD_DIR.mkdir(exist_ok=True)
+UPLOAD_DIR_QUESTS = Path(settings.quest_uploads)
+UPLOAD_DIR_QUESTS.mkdir(exist_ok=True)
+
+UPLOAD_DIR_LIBRARY = Path(settings.library_records_uploads)
+UPLOAD_DIR_LIBRARY.mkdir(exist_ok=True)
 
 app = FastAPI()
 
 app.include_router(quest_router.router, prefix="/quests", tags=["Quests"])
 app.include_router(quest_line_router.router, prefix="/quest_lines", tags=["Quest Lines"])
 app.include_router(user_router.router, prefix="/auth", tags=["User"])
+app.include_router(library_router.router, prefix="/library", tags=["Library"])
 
-app.mount("/quest_uploads", StaticFiles(directory=UPLOAD_DIR), name="quest_uploads")
+app.mount("/quest_uploads", StaticFiles(directory=UPLOAD_DIR_QUESTS), name="quest_uploads")
+app.mount("/library_uploads", StaticFiles(directory=UPLOAD_DIR_LIBRARY), name="library_uploads")
 
 # Temporarily solution to conncet with react
 origins = ["http://localhost:3000"]
