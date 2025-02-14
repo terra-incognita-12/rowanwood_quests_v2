@@ -4,6 +4,8 @@ import { createTheme, ThemeProvider, CssBaseline } from "@mui/material";
 import Layout from "./components/Layout";
 
 import HomePage from "./pages/HomePage";
+import AllLibraryRecordsPage from "./pages/AllLibraryRecordsPage";
+import LibraryRecordPage from "./pages/LibraryRecordPage";
 
 // Auth
 import RegisterPage from "./pages/auth/RegisterPage";
@@ -19,6 +21,11 @@ import CreateQuestPage from "./pages/editor/quests/CreateQuestPage";
 import QuestLineEditorPage from "./pages/editor/questLines/QuestLineEditorPage";
 import AllQuestLinesEditorPage from "./pages/editor/questLines/AllQuestLinesEditorPage";
 import CreateQuestLinePage from "./pages/editor/questLines/CreateQuestLinePage";
+
+// Editor: Library
+import LibraryRecordEditorPage from "./pages/editor/library/LIbraryRecordEditorPage";
+import AllLibraryRecordsEditorPage from "./pages/editor/library/AllLibraryRecordsEditorPage";
+import CreateLibraryRecord from "./pages/editor/library/CreateLibraryRecord";
 
 const darkTheme = createTheme({
     palette: {
@@ -41,6 +48,9 @@ const App = () => {
                     <Route path="/" element={<Layout />}>
                         <Route index element={<HomePage />} />
                         
+                        <Route path="/library" element={<AllLibraryRecordsPage />} />
+                        <Route path="/library/:id" element={<LibraryRecordPage />} />
+
                         <Route path="/register" element={<RegisterPage />} />
                         <Route path="/login" element={<LoginPage />} />
                         <Route path="/forgot_password" element={<ForgotPasswordPage />} />
@@ -52,6 +62,10 @@ const App = () => {
                         <Route path="/editor/quest/:quest_id/quest-lines" element={<AllQuestLinesEditorPage />} />
                         <Route path="/editor/quest/:quest_id/new-quest-line" element={<CreateQuestLinePage />} />
                         <Route path="/editor/quest/:quest_id/quest-lines/:questLine_id" element={<QuestLineEditorPage />} />
+
+                        <Route path="/editor/library/:id" element={<LibraryRecordEditorPage />} />
+                        <Route path="/editor/library" element={<AllLibraryRecordsEditorPage />} />
+                        <Route path="/editor/library/new" element={<CreateLibraryRecord />} />
                     </Route>
                 </Routes>
             </BrowserRouter>

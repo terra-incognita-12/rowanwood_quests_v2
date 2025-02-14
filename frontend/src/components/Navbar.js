@@ -14,10 +14,11 @@ const Navbar = () => {
             <Toolbar>
                 <Box sx={{ display: "flex", flexGrow: 1 }}>
                     <Button component={Link} to="/" color="inherit" sx={{ textTransform: "none" }} className="navbar-button">Home</Button>
-                    <Button color="inherit" sx={{ textTransform: "none" }} className="navbar-button">Library</Button>
+                    <Button component={Link} to="/library" color="inherit" sx={{ textTransform: "none" }} className="navbar-button">Library</Button>
                     <Button color="inherit" sx={{ textTransform: "none" }} className="navbar-button">About</Button>
                     <Button color="inherit" sx={{ textTransform: "none" }} className="navbar-button">Contact Us</Button>
                 </Box>
+                <Button component={Link} to="/editor/library" color="inherit" sx={{ textTransform: "none" }} className="navbar-button">Library (test)</Button>
                 <Button component={Link} to="/editor/quests" color="inherit" sx={{ textTransform: "none" }} className="navbar-button">Quests (test)</Button>
                 <Button component={Link} to="/login" color="inherit" sx={{ textTransform: "none" }} className="navbar-button">Login</Button>
             </Toolbar>
