@@ -26,7 +26,7 @@ const Layout = () => {
                         backgroundSize: "cover",
                         backgroundPosition: "center",
                         backgroundRepeat: "no-repeat",
-                        boxShadow: "40px 40px 40px rgba(0, 0, 0, 1)"
+                        boxShadow: "10px 10px 10px rgba(0, 0, 0, 1)"
                     }}
                 >
                     <Navbar />

@@ -8,7 +8,9 @@ const Navbar = () => {
             position="static" 
             sx={{ 
                 flex: 1,
-                boxShadow: "10px 10px 10px rgba(0, 0, 0, 1)"
+                backgroundColor: "rgba(0, 0, 0, 0.5)",
+                backdropFilter: "blur(5px)",
+                // boxShadow: "10px 10px 10px rgba(0, 0, 0, 1)"
             }}
         >
             <Toolbar>

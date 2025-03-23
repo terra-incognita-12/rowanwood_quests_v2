@@ -33,7 +33,7 @@ const darkTheme = createTheme({
     },
     typography: {
         allVariants: {
-            color: "#FFD700",
+            color: "white",
         },
         fontFamily: '"Courier New", Courier, monospace'
     },

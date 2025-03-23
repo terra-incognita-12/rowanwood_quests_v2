@@ -7,6 +7,7 @@ body {
 }
 
 .navbar-button {
-    color: #ffd700 !important;
-    font-size: 1.3rem !important;
+    color: white !important;
+    font-size: 1.4rem !important;
+    font-weight: bold !important;
 }
