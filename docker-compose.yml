@@ -1,0 +1,34 @@
+services:
+  backend:
+    container_name: backend
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    volumes:
+      - ./backend:/backend
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+  frontend:
+    container_name: frontend
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    volumes:
+      - ./frontend:/frontend
+      - /frontend/node_modules
+    ports:
+      - "3000:3000"
+    stdin_open: true
+
+  db:
+    container_name: postgres_db
+    image: postgres:15
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: rowanwood_dev_db
+      POSTGRES_USER: anton
+      POSTGRES_PASSWORD: qwerty12

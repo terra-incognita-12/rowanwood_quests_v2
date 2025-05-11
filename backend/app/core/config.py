@@ -14,8 +14,8 @@ class Settings(BaseSettings):
 
     access_token_secret: str = config("ACCESS_TOKEN_SECRET")
     refresh_token_secret: str = config("REFRESH_TOKEN_SECRET")
-    #access_token_expire_minutes: int = config("ACCESS_TOKEN_EXPIRE_MINUTES")
-    #refresh_token_expire_minutes: int = config("REFRESH_TOKEN_EXPIRE_MINUTES")
+    access_token_expire_minutes: int = config("ACCESS_TOKEN_EXPIRE_MINUTES")
+    refresh_token_expire_minutes: int = config("REFRESH_TOKEN_EXPIRE_MINUTES")
 
     quest_uploads: str = config("QUEST_UPLOADS")
     library_records_uploads: str = config("LIBRARY_RECORDS_UPLOADS")
