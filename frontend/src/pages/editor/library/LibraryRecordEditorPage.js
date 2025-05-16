@@ -22,9 +22,6 @@ const LibraryRecordEditorPage = () => {
     // Loading and Error while submitting changes to the record
     const [loadingUpdateRecord, setLoadingUpdateRecord] = useState(false);
     const [errorUpdateRecord, setErrorUpdateRecord] = useState(null);
-    
-    // Quest pulled from DB
-    const [libraryRecord, setLibraryRecord] = useState();
 
     // Original values before change. Photo should be null, because it will be only triggered on change to not null
     const [initialFormData, setInitialFormData] = useState({
@@ -53,11 +50,10 @@ const LibraryRecordEditorPage = () => {
         const loadRecord = async () => {
             try {
                 const data = await getLibraryRecord(id);
-                setLibraryRecord(data);
                 setInitialFormData({
                     name: data.name || "",
                     description: data.description || "",
-                    photo: null,
+                    photo: data.photo || "",
                 });
                 setFormData({
                     name: data.name || "",
@@ -118,7 +114,7 @@ const LibraryRecordEditorPage = () => {
         }   
     };
 
-    // Clean photo 
+    // Reset photo input
     const handleCleanPhoto = (e) => {
         e.target.value = "";
     };
@@ -173,13 +169,13 @@ const LibraryRecordEditorPage = () => {
             
             // Update quest state
             const updatedRecord = response.data;
-            setLibraryRecord(updatedRecord);
             // Sync initialFormData with updated data
             setInitialFormData({ 
                 name: updatedRecord.name, 
                 description: updatedRecord.description, 
                 photo: updatedRecord.photo 
             });
+            setIsPhotoUploaded(false);
             alert("Changes saved successfully!");
         } catch (err) {
             if (err.response?.data?.detail) {
@@ -196,17 +192,13 @@ const LibraryRecordEditorPage = () => {
     };
 
     const handleDeletePhoto = async () => {
-        if (!libraryRecord?.photo) {
-            alert("No photo to delete");
-            return;
-        }
         if (!window.confirm("Are you sure you want to delete this photo?")) return;
         
         try {
             setLoadingUpdateRecord(true);
             setErrorUpdateRecord(null);
             const response = await deleteLibraryRecordPhoto(id);
-            setLibraryRecord((prev) => ({
+            setInitialFormData((prev) => ({
                 ...prev,
                 photo: null,
             }));
@@ -220,7 +212,7 @@ const LibraryRecordEditorPage = () => {
                 setErrorUpdateRecord("Failed to connect to the server, please try again.");
             }
         } finally {
-            setErrorUpdateRecord(false);
+            setLoadingUpdateRecord(false);
         }
     };
 
@@ -272,9 +264,9 @@ const LibraryRecordEditorPage = () => {
             </Box>
             <Box sx={{ textAlign: "center", width: "100%", maxWidth: "800px", margin: "0 auto" }}>
                 <img
-                    src={libraryRecord?.photo
-                            ? `${backendUrl}${libraryRecord?.photo}`
-                            : "https://placehold.co/800"
+                    src={initialFormData.photo
+                        ? `${backendUrl}/${initialFormData.photo}`
+                        : "https://placehold.co/800"
                     }
                     alt="Record"
                     style={{ 

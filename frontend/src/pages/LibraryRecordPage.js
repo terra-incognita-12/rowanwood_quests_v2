@@ -3,6 +3,7 @@ import { Box, Typography, Button } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { Link, useParams } from "react-router-dom";
 import { getLibraryRecord } from "../api/libraryApi";
+import { backendUrl } from "../utils/config";
 
 const LibraryRecordPage = () => {
     const { id } = useParams();
@@ -13,8 +14,6 @@ const LibraryRecordPage = () => {
     
     // Quest pulled from DB
     const [libraryRecord, setLibraryRecord] = useState();
-
-    const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
     // Pulling record from the DB
     useEffect(() => {
@@ -52,7 +51,7 @@ const LibraryRecordPage = () => {
             <Box sx={{ textAlign: "center", width: "100%", maxWidth: "800px", margin: "0 auto", mt: 5 }}>
                 <img
                     src={libraryRecord?.photo
-                            ? `${backendUrl}${libraryRecord?.photo}`
+                            ? `${backendUrl}/${libraryRecord?.photo}`
                             : "https://placehold.co/800"
                     }
                     alt="Record"

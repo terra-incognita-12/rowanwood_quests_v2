@@ -9,7 +9,7 @@ from app.db.models import LibraryRecord
 from app.schemas import library_record_schemas as schema
 from app.core.config import settings
 
-UPLOAD_DIR = Path(settings.library_records_uploads)
+UPLOAD_DIR = Path(settings.library_record_photos)
 
 router = APIRouter()
 
@@ -38,7 +38,7 @@ async def create_library_record(
         photo_path = UPLOAD_DIR / file_name
         with open(photo_path, "wb") as f:
             f.write(await photo.read())
-        photo_url = f"/{settings.library_records_uploads}/{file_name}"
+        photo_url = f"{settings.library_record_photos}/{file_name}"
 
     new_library_record = LibraryRecord(
         name=name,
@@ -91,7 +91,7 @@ async def update_library_record(
         photo_path = UPLOAD_DIR / file_name
         with open(photo_path, "wb") as f:
             f.write(await photo.read())
-        library_record.photo = f"/{settings.library_records_uploads}/{file_name}"
+        library_record.photo = f"{settings.library_record_photos}/{file_name}"
 
     if name:
         library_record.name = name

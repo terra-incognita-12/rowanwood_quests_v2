@@ -9,7 +9,7 @@ from app.db.models import Quest
 from app.schemas import quest_schemas as schema
 from app.core.config import settings
 
-UPLOAD_DIR = Path(settings.quest_uploads)
+UPLOAD_DIR = Path(settings.quest_photos)
 
 router = APIRouter()
 
@@ -36,10 +36,12 @@ async def create_quest(
     photo_url = None
     if photo:
         file_name = f"{uuid4()}-{photo.filename}"
+        # photo_path to save the file inside the system
         photo_path = UPLOAD_DIR / file_name
         with open(photo_path, "wb") as f:
             f.write(await photo.read())
-        photo_url = f"/quest_uploads/{file_name}"
+        # photo_url to have address saved in the db
+        photo_url = f"{settings.quest_photos}/{file_name}"
 
     new_quest = Quest(
         name=name,
@@ -94,7 +96,7 @@ async def update_quest(
         photo_path = UPLOAD_DIR / file_name
         with open(photo_path, "wb") as f:
             f.write(await photo.read())
-        quest.photo = f"/quest_uploads/{file_name}"
+        quest.photo = f"{settings.quest_photos}/{file_name}"
 
     if name:
         quest.name = name

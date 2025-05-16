@@ -23,7 +23,7 @@ import AllQuestLinesEditorPage from "./pages/editor/questLines/AllQuestLinesEdit
 import CreateQuestLinePage from "./pages/editor/questLines/CreateQuestLinePage";
 
 // Editor: Library
-import LibraryRecordEditorPage from "./pages/editor/library/LIbraryRecordEditorPage";
+import LibraryRecordEditorPage from "./pages/editor/library/LibraryRecordEditorPage";
 import AllLibraryRecordsEditorPage from "./pages/editor/library/AllLibraryRecordsEditorPage";
 import CreateLibraryRecord from "./pages/editor/library/CreateLibraryRecord";
 

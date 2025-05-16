@@ -36,7 +36,7 @@ const HomePage = () => {
                                 component="img"
                                 height="400"
                                 image={quest?.photo
-                                    ? `${backendUrl}${quest?.photo}`
+                                    ? `${backendUrl}/${quest?.photo}`
                                     : "https://via.placeholder.com/400x400"
                                 }
                                 alt={quest.name}

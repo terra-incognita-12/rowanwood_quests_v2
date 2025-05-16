@@ -17,8 +17,8 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = config("ACCESS_TOKEN_EXPIRE_MINUTES")
     refresh_token_expire_minutes: int = config("REFRESH_TOKEN_EXPIRE_MINUTES")
 
-    quest_uploads: str = config("QUEST_UPLOADS")
-    library_records_uploads: str = config("LIBRARY_RECORDS_UPLOADS")
+    quest_photos: str = config("QUEST_PHOTOS")
+    library_record_photos: str = config("LIBRARY_RECORD_PHOTOS")
     
     class Config:
         env_file = ".env"

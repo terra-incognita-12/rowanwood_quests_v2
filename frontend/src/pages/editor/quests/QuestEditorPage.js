@@ -54,7 +54,7 @@ const QuestEditorPage = () => {
         const loadQuest = async () => {
             try {
                 const data = await getQuest(id);
-                // setQuest(data);
+                
                 setInitialFormData({
                     name: data.name || "",
                     telegram_url: data.telegram_url || "",
@@ -289,7 +289,7 @@ const QuestEditorPage = () => {
             <Box sx={{ textAlign: "center", width: "100%", maxWidth: "800px", margin: "0 auto" }}>
                 <img
                     src={initialFormData.photo
-                        ? `${backendUrl}${initialFormData.photo}`
+                        ? `${backendUrl}/${initialFormData.photo}`
                         : "https://placehold.co/800"
                     }
                     alt="Quest"
