@@ -5,6 +5,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { Link, useParams } from "react-router-dom";
 import { getQuest, updateQuest, deleteQuest, deleteQuestPhoto } from "../../../api/questsApi";
 import { redirectTo } from "../../../utils/navigations";
+import { backendUrl } from "../../../utils/config";
 
 const URL_REGEX = /^[a-z][a-zA-Z0-9-_]{3,255}$/
 const PHOTO_REGEX = /\.(jpg|jpeg)$/
@@ -22,9 +23,6 @@ const QuestEditorPage = () => {
     // Loading and Error while submitting changes to the quest
     const [loadingUpdateQuest, setLoadingUpdateQuest] = useState(false);
     const [errorUpdateQuest, setErrorUpdateQuest] = useState(null);
-    
-    // Quest pulled from DB
-    const [quest, setQuest] = useState();
 
     // Original values before change. Photo should be null, because it will be only triggered on change to not null
     const [initialFormData, setInitialFormData] = useState({
@@ -51,19 +49,17 @@ const QuestEditorPage = () => {
     // State to check if photo uploaded and valid to show current loaded photo before submit
     const [isPhotoUploaded, setIsPhotoUploaded] = useState(false);
 
-    const backendUrl = process.env.REACT_APP_BACKEND_URL;
-
     // Pulling quest from the DB
     useEffect(() => {
         const loadQuest = async () => {
             try {
                 const data = await getQuest(id);
-                setQuest(data);
+                // setQuest(data);
                 setInitialFormData({
                     name: data.name || "",
                     telegram_url: data.telegram_url || "",
                     description: data.description || "",
-                    photo: null,
+                    photo: data.photo || null,
                 });
                 setFormData({
                     name: data.name || "",
@@ -129,8 +125,8 @@ const QuestEditorPage = () => {
             setIsPhotoUploaded(true);
         }   
     };
-
-    // Clean photo 
+    
+    // Reset photo input
     const handleCleanPhoto = (e) => {
         e.target.value = "";
     };
@@ -185,7 +181,6 @@ const QuestEditorPage = () => {
             
             // Update quest state
             const updatedQuest = response.data;
-            setQuest(updatedQuest);
             // Sync initialFormData with updated data
             setInitialFormData({ 
                 name: updatedQuest.name, 
@@ -193,6 +188,7 @@ const QuestEditorPage = () => {
                 description: updatedQuest.description, 
                 photo: updatedQuest.photo 
             });
+            setIsPhotoUploaded(false);
             alert("Changes saved successfully!");
         } catch (err) {
             if (err.response?.data?.detail) {
@@ -215,7 +211,7 @@ const QuestEditorPage = () => {
             setLoadingUpdateQuest(true);
             setErrorUpdateQuest(null);
             const response = await deleteQuestPhoto(id);
-            setQuest((prev) => ({
+            setInitialFormData((prev) => ({
                 ...prev,
                 photo: null,
             }));
@@ -292,9 +288,9 @@ const QuestEditorPage = () => {
             </Box>
             <Box sx={{ textAlign: "center", width: "100%", maxWidth: "800px", margin: "0 auto" }}>
                 <img
-                    src={quest?.photo
-                            ? `${backendUrl}${quest?.photo}`
-                            : "https://via.placeholder.com/800x800"
+                    src={initialFormData.photo
+                        ? `${backendUrl}${initialFormData.photo}`
+                        : "https://placehold.co/800"
                     }
                     alt="Quest"
                     style={{ 

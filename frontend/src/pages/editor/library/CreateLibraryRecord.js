@@ -39,7 +39,6 @@ const CreateLibraryRecord = () => {
                 break;
             case "description":
                 if (!value) return "Description is Required.";
-                if (value.length > 255) return "Max 255 character allowed.";
                 break;
             case "photo":
                 if(value && !value.name.match(PHOTO_REGEX)) return "Only .jpeg or .jpg files are allowed.";

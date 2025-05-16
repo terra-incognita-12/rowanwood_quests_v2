@@ -5,6 +5,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { Link, useParams } from "react-router-dom";
 import { getLibraryRecord, updateLibraryRecord, deleteLibraryRecord, deleteLibraryRecordPhoto } from "../../../api/libraryApi";
 import { redirectTo } from "../../../utils/navigations";
+import { backendUrl } from "../../../utils/config";
 
 const PHOTO_REGEX = /\.(jpg|jpeg)$/
 
@@ -47,8 +48,6 @@ const LibraryRecordEditorPage = () => {
     // State to check if photo uploaded and valid to show current loaded photo before submit
     const [isPhotoUploaded, setIsPhotoUploaded] = useState(false);
 
-    const backendUrl = process.env.REACT_APP_BACKEND_URL;
-
     // Pulling record from the DB
     useEffect(() => {
         const loadRecord = async () => {
@@ -84,7 +83,6 @@ const LibraryRecordEditorPage = () => {
                 break;
             case "description":
                 if (!value) return "Description is Required.";
-                if (value.length > 255) return "Max 255 character allowed.";
                 break;
             case "photo":
                 if(value && !value.name.match(PHOTO_REGEX)) return "Only .jpeg or .jpg files are allowed.";
