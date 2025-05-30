@@ -1,11 +1,14 @@
 import { React, useEffect, useState } from "react";
-import { Box, Typography, Button, TextField, Grid2, Alert } from "@mui/material";
+import { Box, Typography, Button, TextField, Grid2, Alert, Stack, IconButton } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import CloseIcon from "@mui/icons-material/Close";
 import { Link, useParams } from "react-router-dom";
-import { getQuestLine, getQuestLines, updateQuestLine, deleteQuestLine } from "../../../api/questLinesApi";
+import { getQuestLine, getQuestLines, updateQuestLine, deleteQuestLine, deleteQuestLinePhoto } from "../../../api/questLinesApi";
 import { redirectTo } from "../../../utils/navigations";
+import { backendUrl } from "../../../utils/config";
 
 const DIGIT_REGEX = /^\d+$/
+const PHOTO_REGEX = /\.(jpg|jpeg)$/ 
 
 /* 
 Editor section, edit or delete quest line
@@ -26,45 +29,28 @@ const QuestLineEditorPage = () => {
     const [initialFormData, setInitialFormData] = useState({
         name: "",
         order_number: "",
-        description: ""
+        description: "",
+        photo: null,
     });
 
     const [formData, setFormData] = useState({
         name: "",
         order_number: "",
         description: "",
+        photo: null,
     });
 
     const [formErrors, setFormErrors] = useState({
         name: "",
         order_number: "",
         description: "",
+        photo: "",
     });
 
     const [initialOptions, setInitialOptions] = useState([]);
     const [options, setOptions] = useState([]);
-
-    const validateField = (name, value) => {
-        switch (name) {
-            case "name":
-                if (!value) return "Quest Line Name is Required.";
-                if (value.length > 50) return "Max 50 character allowed.";
-                if (value.length < 3) return "Min 3 character allowed.";
-                break;
-            case "order_number":
-                if (!value) return "Order number is Required.";
-                if (!DIGIT_REGEX.test(value)) return "Only number is allowed";
-                if (parseInt(value, 10) < 0) return "Only number that grater or equal 0 is allowed";
-                if (value.length > 6) return "Max 6 digit number is allowed.";
-                break;
-            case "description":
-                if (!value) return "Description is Required.";
-                break;
-            default:
-                return null;
-        }
-        return null;
-    };
+    // State to check if photo uploaded and valid to show current loaded photo before submit
+    const [isPhotoUploaded, setIsPhotoUploaded] = useState(false);
 
     useEffect(() => {
         const loadQuestLine = async () => {
@@ -74,11 +60,13 @@ const QuestLineEditorPage = () => {
                     name: data.name || "",
                     order_number: data.order_number || "",
                     description: data.description || "",
+                    photo: data.photo || null,
                 });
                 setFormData({
                     name: data.name || "",
                     order_number: data.order_number || "",
                     description: data.description || "",
+                    photo: data.photo || null,
                 });
                 if (data.quest_line_options && data.quest_line_options.length > 0) {
                     const formOptions = data.quest_line_options.map((option) => ({
@@ -111,6 +99,31 @@ const QuestLineEditorPage = () => {
         loadQuestLines();
     }, [quest_id, questLine_id]);
 
+    const validateField = (name, value) => {
+        switch (name) {
+            case "name":
+                if (!value) return "Quest Line Name is Required.";
+                if (value.length > 50) return "Max 50 character allowed.";
+                if (value.length < 3) return "Min 3 character allowed.";
+                break;
+            case "order_number":
+                if (!value) return "Order number is Required.";
+                if (!DIGIT_REGEX.test(value)) return "Only number is allowed";
+                if (parseInt(value, 10) < 0) return "Only number that grater or equal 0 is allowed";
+                if (value.length > 6) return "Max 6 digit number is allowed.";
+                break;
+            case "description":
+                if (!value) return "Description is Required.";
+                break;
+            case "photo":
+                if(isPhotoUploaded && value && !value.name.match(PHOTO_REGEX)) return "Only .jpeg or .jpg files are allowed.";
+                if(isPhotoUploaded && value && value.size > 2097152) return "Value size is too big.";
+                break;
+            default:
+                return null;
+        }
+        return null;
+    };
 
     // inputs
     const handleChange = (e) => {
@@ -145,6 +158,30 @@ const QuestLineEditorPage = () => {
         );
     };
 
+    // handleChange for photo
+    const handlePhotoUpload = (e) => {
+        const file = e.target.files[0];
+        const error = validateField("photo", file);
+        setFormErrors((prev) => ({ ...prev, photo: error }));
+        if (!error) {
+            setFormData((prev) => ({ ...prev, photo: file }));
+            setIsPhotoUploaded(true);
+        }   
+    };
+    
+    // Reset photo input
+    const handleCleanPhoto = (e) => {
+        e.target.value = "";
+    };
+
+    const handleRemovePhoto = (e) => {
+        setFormData((prev) => ({
+            ...prev,
+            photo: null,
+        }));
+        setIsPhotoUploaded(false);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -166,10 +203,16 @@ const QuestLineEditorPage = () => {
             return;
         }
 
-        const formDataToSend = {};
+        const formDataToSend = new FormData();
         Object.keys(formData).forEach((key) => {
             if (formData[key] !== initialFormData[key]) {
-                formDataToSend[key] = formData[key];
+                // Append the photo file
+                if (key === "photo" && formData[key] instanceof File) {
+                    formDataToSend.append(key, formData[key]);
+                // Append other fields
+                } else if (formData[key] !== null && formData[key] !== undefined) {
+                    formDataToSend.append(key, formData[key]);
+                }
             }
         });
 
@@ -181,13 +224,15 @@ const QuestLineEditorPage = () => {
                     next_quest_line_id: option.dropdownValue,
                 });
             });
-            formDataToSend["quest_line_options"] = optionsUpdated;
         }
+
+        formDataToSend.append("quest_line_options", JSON.stringify(optionsUpdated));
 
         try {
             setLoadingUpdateQuestLine(true);
             setErrorUpdateQuestLine(null);
             const response = await updateQuestLine(formDataToSend, quest_id, questLine_id);
+            alert("Changes saved successfully!");
             redirectTo(`/editor/quest/${quest_id}/quest-lines`);
         } catch (err) {
             if (err.response?.data?.detail) {
@@ -210,6 +255,26 @@ const QuestLineEditorPage = () => {
 
         try {
             const response = await deleteQuestLine(questLine_id);
+            redirectTo(`/editor/quest/${quest_id}/quest-lines`);         
+        } catch (err) {
+            if (err.response?.data?.detail) {
+                const errorDetail = Array.isArray(err.response.data.detail)
+                    ? err.response.data.detail.map((e) => e.msg).join(", ")
+                    : err.response.data.detail
+                setErrorUpdateQuestLine(errorDetail || "Something went wrong!");
+            } else { 
+                setErrorUpdateQuestLine("Failed to connect to the server, please try again.");
+            }
+        } finally {
+            setLoadingUpdateQuestLine(false);
+        }
+    };
+
+    const handleDeletePhoto = async () => {
+        if (!window.confirm("Are you sure you want to delete this photo?")) return;
+        
+        try {
+            const response = await deleteQuestLinePhoto(questLine_id);
             redirectTo(`/editor/quest/${quest_id}/quest-lines`);         
         } catch (err) {
             if (err.response?.data?.detail) {
@@ -254,6 +319,31 @@ const QuestLineEditorPage = () => {
                     </Button>
                 </Box>
             </Box>
+            <Box sx={{ textAlign: "center", width: "100%", maxWidth: "800px", margin: "0 auto" }}>
+                <img
+                    src={initialFormData.photo
+                        ? `${backendUrl}/${initialFormData.photo}`
+                        : "https://placehold.co/800"
+                    }
+                    alt="Quest"
+                    style={{ 
+                        width: "100%",
+                        height: "auto", 
+                        objectFit: "cover", 
+                        borderRadius: "25px" 
+                    }}
+                />
+            </Box>
+            <Box sx={{ textAlign: "center", width: "100%", justifyContent: "space-around", mt: 3}}>
+                <Button 
+                    color="error" 
+                    variant="contained"
+                    onClick={handleDeletePhoto}
+                    sx={{ textTransform: "none", width: "50%" }}
+                >
+                    Delete Image
+                </Button>
+            </Box>
             <Box component="form" onSubmit={handleSubmit} sx={{ mt: 5, display: "flex", flexDirection: "column", gap: 2 }}>
                 {errorUpdateQuestLine && <Alert severity="error">{errorUpdateQuestLine}</Alert>}
                 
@@ -289,7 +379,35 @@ const QuestLineEditorPage = () => {
                     fullWidth
                     required
                 />
-
+                <Grid2 spacing={2} container>
+                    <Grid2 xs={12} md={6}>
+                        <Button 
+                            variant="contained" 
+                            component="label" 
+                            color="inherit" 
+                            sx={{ textTransform: "none" }}
+                        >
+                            Upload Photo
+                            <input
+                                type="file"
+                                accept=".jpeg,.jpg"
+                                onChange={handlePhotoUpload}
+                                onClick={handleCleanPhoto}
+                                hidden
+                            />
+                        </Button>
+                    </Grid2>
+                    {isPhotoUploaded && (
+                        <Grid2 xs={12} md={6}>
+                            <Stack spacing={1} direction="row">
+                                <Typography gutterBottom variant="overline">{formData.photo.name}</Typography>
+                                <IconButton edge="end" color="error" onClick={handleRemovePhoto}>
+                                    <CloseIcon />
+                                </IconButton>
+                            </Stack>
+                        </Grid2>
+                    )}
+                </Grid2>
                 <Button
                     variant="contained"
                     color="inherit"

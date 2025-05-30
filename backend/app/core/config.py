@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     refresh_token_expire_minutes: int = config("REFRESH_TOKEN_EXPIRE_MINUTES")
 
     quest_photos: str = config("QUEST_PHOTOS")
+    quest_line_photos: str = config("QUEST_LINE_PHOTOS")
     library_record_photos: str = config("LIBRARY_RECORD_PHOTOS")
     
     class Config:

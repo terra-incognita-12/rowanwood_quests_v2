@@ -219,4 +219,5 @@ pip-selfcheck.json
 
 my_notes.txt
 /backend/quest_photos/*
+/backend/quest_line_photos/*
 /backend/library_record_photos/*

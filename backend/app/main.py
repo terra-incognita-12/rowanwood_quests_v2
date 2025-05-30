@@ -11,6 +11,9 @@ from pathlib import Path
 UPLOAD_DIR_QUESTS = Path(settings.quest_photos)
 UPLOAD_DIR_QUESTS.mkdir(exist_ok=True)
 
+UPLOAD_DIR_QUEST_LINES = Path(settings.quest_line_photos)
+UPLOAD_DIR_QUEST_LINES.mkdir(exist_ok=True)
+
 UPLOAD_DIR_LIBRARY = Path(settings.library_record_photos)
 UPLOAD_DIR_LIBRARY.mkdir(exist_ok=True)
 
@@ -22,6 +25,7 @@ app.include_router(user_router.router, prefix="/auth", tags=["User"])
 app.include_router(library_router.router, prefix="/library", tags=["Library"])
 
 app.mount("/quest_photos", StaticFiles(directory=UPLOAD_DIR_QUESTS), name="quest_photos")
+app.mount("/quest_line_photos", StaticFiles(directory=UPLOAD_DIR_QUEST_LINES), name="quest_line_photos")
 app.mount("/library_record_photos", StaticFiles(directory=UPLOAD_DIR_LIBRARY), name="library_record_photos")
 
 # Temporarily solution to conncet with react

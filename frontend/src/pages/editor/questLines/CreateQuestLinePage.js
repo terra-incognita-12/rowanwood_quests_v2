@@ -1,11 +1,13 @@
 import { React, useEffect, useState } from "react";
-import { Box, Typography, Button, TextField, Grid2, Alert } from "@mui/material";
+import { Box, Typography, Button, TextField, Grid2, Alert, Stack, IconButton } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import CloseIcon from "@mui/icons-material/Close";
 import { Link, useParams } from "react-router-dom";
 import { createQuestLine, getQuestLines } from "../../../api/questLinesApi";
 import { redirectTo } from "../../../utils/navigations";
 
 const DIGIT_REGEX = /^\d+$/
+const PHOTO_REGEX = /\.(jpg|jpeg)$/
 
 /* 
 Editor section, create new quest line
@@ -21,15 +23,19 @@ const CreateQuestLinePage = () => {
         name: "",
         order_number: "",
         description: "",
+        photo: null,
     });
 
     const [formErrors, setFormErrors] = useState({
         name: "",
         order_number: "",
         description: "",
+        photo: null,
     });
 
     const [options, setOptions] = useState([]);
+    // State to check if photo uploaded and valid to show current loaded photo before submit
+    const [isPhotoUploaded, setIsPhotoUploaded] = useState(false);
 
     const validateField = (name, value) => {
         switch (name) {
@@ -47,12 +53,17 @@ const CreateQuestLinePage = () => {
             case "description":
                 if (!value) return "Description is Required.";
                 break;
+            case "photo":
+                if (value && !value.name.match(PHOTO_REGEX)) return "Only .jpeg or .jpg files are allowed.";
+                if (value && value.size > 2097152) return "Value size is too big.";
+                break;
             default:
                 return null;
         }
         return null;
     };
 
+    // Populate dropdown to select options of next quest lines
     useEffect(() => {
         const loadQuestLines = async () => {
             try {
@@ -101,6 +112,29 @@ const CreateQuestLinePage = () => {
         );
     };
 
+    // handleChange for photo
+    const handlePhotoUpload = (e) => {
+        const file = e.target.files[0];
+        const error = validateField("photo", file);
+        setFormErrors((prev) => ({ ...prev, photo: error }));
+        if (!error) {
+            setFormData((prev) => ({ ...prev, photo: file }));
+            setIsPhotoUploaded(true);
+        }   
+    };
+
+    const handleCleanPhoto = (e) => {
+        e.target.value = "";
+    };
+
+    const handleRemovePhoto = (e) => {
+        setFormData((prev) => ({
+            ...prev,
+            photo: null,
+        }));
+        setIsPhotoUploaded(false);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -115,15 +149,20 @@ const CreateQuestLinePage = () => {
             return;
         }
 
-        const optionsToSend = [];
-        options.forEach((option) => {
-            if (option) optionsToSend.push({
-                "description": option.textValue,
-                "next_quest_line_id": option.dropdownValue || null, 
-            })
+        const formDataToSend = new FormData();
+        Object.entries(formData).forEach(([key, value]) => {
+            if (value) formDataToSend.append(key, value);
         });
 
-        const formDataToSend = JSON.stringify({...formData, "quest_line_options": optionsToSend});
+        // const optionsToSend = [];
+        // options.forEach((option) => {
+        //     if (option) optionsToSend.push({
+        //         "description": option.textValue,
+        //         "next_quest_line_id": option.dropdownValue || null, 
+        //     })
+        // });
+
+        // const formDataToSend = JSON.stringify({...formData, "quest_line_options": optionsToSend});
 
         try {
             setLoading(true);
@@ -195,7 +234,35 @@ const CreateQuestLinePage = () => {
                     fullWidth
                     required
                 />
-
+                <Grid2 spacing={2} container>
+                    <Grid2 xs={12} md={6}>
+                        <Button 
+                            variant="contained" 
+                            component="label" 
+                            color="inherit" 
+                            sx={{ textTransform: "none" }}
+                        >
+                            Upload Photo
+                            <input
+                                type="file"
+                                accept=".jpeg,.jpg"
+                                onChange={handlePhotoUpload}
+                                onClick={handleCleanPhoto}
+                                hidden
+                            />
+                        </Button>
+                    </Grid2>
+                    {isPhotoUploaded && (
+                        <Grid2 xs={12} md={6}>
+                            <Stack spacing={1} direction="row">
+                                <Typography gutterBottom variant="overline">{formData.photo.name}</Typography>
+                                <IconButton edge="end" color="error" onClick={handleRemovePhoto}>
+                                    <CloseIcon />
+                                </IconButton>
+                            </Stack>
+                        </Grid2>
+                    )}
+                </Grid2>
                 <Button
                     variant="contained"
                     color="inherit"
